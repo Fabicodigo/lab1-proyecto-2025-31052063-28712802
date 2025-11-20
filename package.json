@@ -1,0 +1,29 @@
+{
+  "name": "lab1-proyecto-2025-31052063-28712802",
+  "version": "1.0.0",
+  "description": "Plataforma API para Gestión de Servicios Médicos",
+  "homepage": "https://github.com/Fabicodigo/lab1-proyecto-2025-31052063-28712802#readme",
+  "bugs": {
+    "url": "https://github.com/Fabicodigo/lab1-proyecto-2025-31052063-28712802/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fabicodigo/lab1-proyecto-2025-31052063-28712802.git"
+  },
+  "license": "ISC",
+  "author": "Fabian Camacaro & Marlon Melendez",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.11",
+    "prisma": "^7.0.0",
+    "tsx": "^4.20.6"
+  }
+}
