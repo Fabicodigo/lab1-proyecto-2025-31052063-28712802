@@ -1,11 +1,15 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
+import identidades from './routes/identidadesroutes.js';
+
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('port', process.env.PORT || 4000);
+
+app.use('/', identidades);
 
 app.listen(app.get('port'));
 console.log(`Server is running on port ${app.get('port')}`);
