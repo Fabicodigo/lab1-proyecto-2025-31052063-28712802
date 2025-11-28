@@ -50,7 +50,7 @@ Instalación y Configuración
 ~~~
 Bash
 
-git clone [<URL_DEL_REPOSITORIO>](https://github.com/Fabicodigo/lab1-proyecto-2025-31052063-28712802)
+git clone https://github.com/Fabicodigo/lab1-proyecto-2025-31052063-28712802
 cd lab1-proyecto-2025-31052063-28712802
 npm install
 ~~~
