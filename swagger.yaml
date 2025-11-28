@@ -1,0 +1,2486 @@
+openapi: 3.1.0
+info:
+  title: API de Gestión de Servicios Médicos
+  description: |
+    API RESTful para la gestión de procesos clínicos, administrativos y de facturación
+    en una organización de salud, con foco en el control de acceso y trazabilidad.
+  version: 1.0.0
+tags:
+  - name: Autenticación y Usuarios
+    description: Gestión de acceso, tokens y roles.
+  - name: Identidades
+    description: Gestión de personas (pacientes) y profesionales.
+  - name: Agendamiento
+    description: Creación de bloques de agenda y gestión de citas.
+  - name: Registro Clínico
+    description: Gestión de episodios, notas y diagnósticos.
+  - name: Facturación y Arancel
+    description: Gestión de facturas, pagos y catálogo de servicios.
+  - name: Ordenes
+    description: Gestión de órdenes médicas y resultados de laboratorio.
+  - name: Catalogo clinico
+    description: Gestión de medicamentos, procedimientos y otros ítems clínicos.
+  - name: Notificaciones
+    description: Gestión de envíos de notificaciones y recordatorios.
+  - name: Auditoria
+    description: Gestión de sucursales, salas y recursos médicos. 
+paths:
+  /personas:
+    get:
+      summary: Listar personas (pacientes) con filtros
+      tags:
+        - Identidades
+      operationId: listarPersonas
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - name: numeroDocumento
+          in: query
+          schema:
+            type: string
+        - name: sexo
+          in: query
+          schema:
+            type: string
+            enum:
+              - M
+              - F
+              - O
+        - name: edad
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Lista paginada de personas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPersonas'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para ver personas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Registrar una nueva persona (paciente)
+      tags:
+        - Identidades
+      operationId: createPersona
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Persona'
+      responses:
+        '201':
+          description: Persona creada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear personas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  /personas/{id}:
+    get:
+      summary: Obtener detalle de una persona
+      tags:
+        - Identidades
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Detalle de la persona.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Persona'
+        '404':
+          description: Persona no encontrada.
+        '403':
+          description: No autorizado para ver personas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    patch:
+      summary: Actualizar datos de una persona
+      tags:
+        - Identidades
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: updatePersona
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Persona'
+      responses:
+        '200':
+          description: Persona actualizada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para actualizar personas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+    delete:
+      summary: Desactivar una persona
+      tags:
+        - Identidades
+      operationId: deactivatePersona
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '204':
+          description: Persona desactivada exitosamente.
+        '404':
+          description: Persona no encontrada.
+        '403':
+          description: No autorizado para desactivar personas.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+  /profesionales:
+    get:
+      summary: Listar profesionales de salud con filtros
+      tags:
+        - Identidades
+      operationId: listarProfesionales
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - name: especialidad
+          in: query
+          schema:
+            type: string
+        - name: estado
+          in: query
+          schema:
+            type: string
+            default: activo
+            enum:
+              - activo
+              - inactivo
+      responses:
+        '200':
+          description: Lista paginada de profesionales.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProfesionales'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para ver profesionales.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Registrar un nuevo profesional de salud
+      tags:
+        - Identidades
+      operationId: crearProfesional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profesional'
+      responses:
+        '201':
+          description: Profesional creado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear profesionales.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  
+  /profesionales/{id}:
+    patch:
+      summary: Actualizar datos de un profesional de salud
+      tags:
+        - Identidades
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: actualizarProfesional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profesional'
+      responses:
+        '200':
+          description: Profesional actualizado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para actualizar profesionales.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+    delete:
+      summary: Desactivar un profesional de salud
+      tags:
+        - Identidades
+      operationId: desactivarProfesional
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '204':
+          description: Profesional desactivado exitosamente.
+        '404':
+          description: Profesional no encontrado.
+        '403':
+          description: No autorizado para desactivar profesionales.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+  /unidades:
+    get:
+      summary: Listar unidades médicas
+      tags:
+        - Auditoria
+      operationId: listarUnidades
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - name: estado
+          in: query
+          schema:
+            type: string
+            default: activo
+            enum:
+              - activo
+              - inactivo
+              - En Mantenimiento
+              - ocupada
+      responses:
+        '200':
+          description: Lista paginada de unidades médicas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUnidades'
+      security:
+        - bearerAuth:
+            - admin:full
+            - auditor:read
+        - oauth2Password:
+            - admin:full
+            - auditor:read
+    post:
+      summary: Crear una nueva unidad médica
+      tags:
+        - Auditoria
+      operationId: crearUnidad
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnidadMedica'
+      responses:
+        '201':
+          description: Unidad médica creada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear unidades médicas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - auditor:write
+        - oauth2Password:
+            - admin:full
+            - auditor:write
+  /agenda:
+    get:
+      summary: Listar bloques de agenda con filtros
+      tags:
+        - Agendamiento
+      operationId: listarBloquesAgenda
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - name: profesionalId
+          in: query
+          schema:
+            $ref: '#/components/schemas/Id'
+        - name: unidadId
+          in: query
+          schema:
+            $ref: '#/components/schemas/Id'
+        - name: capacidad
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Lista paginada de bloques de agenda.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBloquesAgenda'
+      security:
+        - bearerAuth:
+            - admin:full
+            - scheduling:read
+        - oauth2Password:
+            - admin:full
+            - scheduling:read
+    post:
+      summary: Crear un nuevo bloque de agenda
+      tags:
+        - Agendamiento
+      operationId: crearBloqueAgenda
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BloqueAgenda'
+      responses:
+        '201':
+          description: Bloque de agenda creado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear bloques de agenda.
+      security:
+        - bearerAuth:
+            - admin:full
+            - scheduling:write
+        - oauth2Password:
+            - admin:full
+            - scheduling:write
+    patch:
+      summary: Actualizar un bloque de agenda
+      tags:
+        - Agendamiento
+      operationId: actualizarBloqueAgenda
+      parameters:
+        - name: estado
+          in: query
+          schema:
+            type: string
+            enum:
+              - disponible
+              - reservado
+              - cancelado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BloqueAgenda'
+      responses:
+        '200':
+          description: Bloque de agenda actualizado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - scheduling:write
+        - oauth2Password:
+            - admin:full
+            - scheduling:write
+  /citas:
+    get:
+      summary: Listar citas médicas con filtros
+      tags:
+        - Agendamiento
+      operationId: listarCitas
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - name: personaId
+          in: query
+          schema:
+            $ref: '#/components/schemas/Id'
+        - name: profesionalId
+          in: query
+          schema:
+            $ref: '#/components/schemas/Id'
+        - name: estado
+          in: query
+          schema:
+            type: string
+            enum:
+              - programada
+              - confirmada
+              - realizada
+              - cancelada
+              - no asistida
+              - reprogramada
+      responses:
+        '200':
+          description: Lista paginada de citas médicas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCitas'
+      security:
+        - bearerAuth:
+            - admin:full
+            - scheduling:read
+        - oauth2Password:
+            - admin:full
+            - scheduling:read
+    post:
+      summary: Crear una nueva cita médica
+      tags:
+        - Agendamiento
+      operationId: crearCita
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cita'
+      responses:
+        '201':
+          description: Cita creada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear citas médicas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - scheduling:write
+        - oauth2Password:
+            - admin:full
+            - scheduling:write
+  /citas/{id}:
+    patch:
+      summary: Actualizar estado de una cita médica
+      tags:
+        - Agendamiento
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+        - name: estado
+          in: query
+          schema:
+            type: string
+            enum:
+              - programada
+              - confirmada
+              - realizada
+              - cancelada
+              - no asistida
+              - reprogramada
+      operationId: actualizarCita
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cita'
+      responses:
+        '200':
+          description: Cita actualizada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '404':
+          description: Cita no encontrada.
+        '403':
+          description: No autorizado para actualizar citas médicas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - scheduling:write
+        - oauth2Password:
+            - admin:full
+            - scheduling:write
+  /episodios:
+    get:
+      summary: Listar episodios clínicos con filtros
+      tags:
+        - Registro Clínico
+      operationId: listarEpisodios
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - name: personaId
+          in: query
+          schema:
+            $ref: '#/components/schemas/Id'
+        - name: archivoId
+          in: query
+          schema:
+            $ref: '#/components/schemas/Id'
+      responses:
+        '200':
+          description: Lista paginada de episodios clínicos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEpisodios'
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Crear un nuevo episodio clínico
+      tags:
+        - Registro Clínico
+      operationId: crearEpisodio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Episodio'
+      responses:
+        '201':
+          description: Episodio clínico creado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear episodios clínicos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  /episodios/{id}/notas:
+    get:
+      summary: Obtener notas de un episodio clínico
+      tags:
+        - Registro Clínico
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: listarNotas
+      responses:
+        '200':
+          description: Detalle del episodio clínico.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Episodio'
+        '400':
+          description: Datos de entrada incorrectos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Agregar una nota a un episodio clínico
+      tags:
+        - Registro Clínico
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: agregarNota
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotaClinica'
+      responses:
+        '201':
+          description: Nota agregada exitosamente al episodio clínico.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para agregar notas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  /episodios/{id}/diagnosticos:
+    get:
+      summary: Obtener diagnósticos de un episodio clínico
+      tags:
+        - Registro Clínico
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: listarDiagnosticos
+      responses:
+        '200':
+          description: Lista de diagnósticos del episodio clínico.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Diagnostico'
+        '400':
+          description: Datos de entrada incorrectos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Agregar un diagnóstico a un episodio clínico
+      tags:
+        - Registro Clínico
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: agregarDiagnostico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Diagnostico'
+      responses:
+        '201':
+          description: Diagnóstico agregado exitosamente al episodio clínico.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para agregar diagnósticos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  /episodios/{id}/consentimientos:
+    get:
+      summary: Obtener consentimientos de un episodio clínico
+      tags:
+        - Registro Clínico
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: listarConsentimientos
+      responses:
+        '200':
+          description: Lista de consentimientos del episodio clínico.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Consentimiento'
+        '400':
+          description: Datos de entrada incorrectos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Agregar un consentimiento a un episodio clínico
+      tags:
+        - Registro Clínico
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: agregarConsentimiento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Consentimiento'
+      responses:
+        '201':
+          description: Consentimiento agregado exitosamente al episodio clínico.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para agregar consentimientos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  /ordenes:
+    get:
+      summary: Obtener listado de ordenes médicas
+      tags:
+        - Ordenes
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - name: episodioId
+          in: query
+          schema:
+            $ref: '#/components/schemas/Id'
+      operationId: listarOrdenes
+      responses:
+        '200':
+          description: Listado de ordenes médicas.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Orden'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a ordenes médicas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Crear una nueva orden médica
+      tags:
+        - Ordenes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orden'
+      operationId: crearOrden
+      responses:
+        '201':
+          description: Orden médica creada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear ordenes médicas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  /ordenes/{id}/items:
+    get:
+      summary: Obtener items de una orden médica
+      tags:
+        - Ordenes
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: listarItems
+      responses:
+        '200':
+          description: Detalle del item de la orden médica.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/item'
+        '400':
+          description: Datos de entrada incorrectos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Agregar un item a una orden médica
+      tags:
+        - Ordenes
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: agregarItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/item'
+      responses:
+        '201':
+          description: Item agregado exitosamente a la orden médica.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para agregar items a la orden médica.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  /ordenes/{id}/resultados:
+    get:
+      summary: Obtener resultados de una orden médica
+      tags:
+        - Ordenes
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: obtenerResultados
+      responses:
+        '200':
+          description: Resultados de la orden médica.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resultados'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para obtener resultados.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:read
+        - oauth2Password:
+            - admin:full
+            - clinical:read
+    post:
+      summary: Registrar resultados de una orden médica
+      tags:
+        - Ordenes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Resultados'
+      operationId: registrarResultados
+      responses:
+        '201':
+          description: Resultados registrados exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para registrar resultados.
+      security:
+        - bearerAuth:
+            - admin:full
+            - clinical:write}
+        - oauth2Password:
+            - admin:full
+            - clinical:write
+  /aseguradoras:
+    get:
+      summary: Listar aseguradoras de salud
+      tags:
+        - Facturación y Arancel
+      operationId: listarAseguradoras
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Lista paginada de aseguradoras.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAseguradoras'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a aseguradoras.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:read
+        - oauth2Password:
+            - admin:full
+            - billing:read
+    post:
+      summary: Crear una nueva aseguradora de salud
+      tags:
+        - Facturación y Arancel
+      operationId: crearAseguradora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Aseguradora'
+      responses:
+        '201':
+          description: Aseguradora creada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear aseguradoras.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:write
+        - oauth2Password:
+            - admin:full
+            - billing:write
+  /planes:
+    get:
+      summary: Listar planes de salud
+      tags:
+        - Facturación y Arancel
+      operationId: listarPlanes
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Lista paginada de planes de salud.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPlanes'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a planes de salud.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:read
+        - oauth2Password:
+            - admin:full
+            - billing:read
+    post:
+      summary: Crear un nuevo plan de salud
+      tags:
+        - Facturación y Arancel
+      operationId: crearPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanCobertura'
+      responses:
+        '201':
+          description: Plan de salud creado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear planes de salud.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:write
+        - oauth2Password:
+            - admin:full
+            - billing:write
+  /afiliaciones:
+    get:
+      summary: Listar afiliaciones de pacientes a planes de salud
+      tags:
+        - Facturación y Arancel
+      operationId: listarAfiliaciones
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - name: personaId
+          in: query
+          schema:
+            $ref: '#/components/schemas/Id'
+      responses:
+        '200':
+          description: Lista paginada de afiliaciones.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAfiliaciones'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a afiliaciones.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:read
+        - oauth2Password:
+            - admin:full
+            - billing:read
+    post:
+      summary: Crear una nueva afiliación de paciente a un plan de salud
+      tags:
+        - Facturación y Arancel
+      operationId: crearAfiliacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Afiliacion'
+      responses:
+        '201':
+          description: Afiliación creada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear afiliaciones.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:write
+        - oauth2Password:
+            - admin:full
+            - billing:write
+  /Prestaciones:
+    get:
+      summary: Listar prestaciones médicas
+      tags:
+        - Facturación y Arancel
+      operationId: listarPrestaciones
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Lista paginada de prestaciones médicas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPrestaciones'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a prestaciones médicas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:read
+        - oauth2Password:
+            - admin:full
+            - billing:read
+    post:
+      summary: Crear una nueva prestación médica
+      tags:
+        - Facturación y Arancel
+      operationId: crearPrestacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prestacion'
+      responses:
+        '201':
+          description: Prestación creada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear prestaciones médicas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:write
+        - oauth2Password:
+            - admin:full
+            - billing:write
+  /arancel:
+    get:
+      summary: Listar aranceles médicos
+      tags:
+        - Facturación y Arancel
+      operationId: listarAranceles
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Lista paginada de aranceles médicos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAranceles'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a aranceles médicos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:read
+        - oauth2Password:
+            - admin:full
+            - billing:read
+    post:
+      summary: Crear un nuevo arancel médico
+      tags:
+        - Facturación y Arancel
+      operationId: crearArancel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Arancel'
+      responses:
+        '201':
+          description: Arancel creado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear aranceles médicos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:write
+        - oauth2Password:
+            - admin:full
+            - billing:write
+  /facturas:
+    get:
+      summary: Listar facturas
+      tags:
+        - Facturación y Arancel
+      operationId: listarFacturas
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Lista paginada de facturas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFacturas'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a facturas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:read
+        - oauth2Password:
+            - admin:full
+            - billing:read
+    post:
+      summary: Crear una nueva factura
+      tags:
+        - Facturación y Arancel
+      operationId: crearFactura
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Factura'
+      responses:
+        '201':
+          description: Factura creada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para crear facturas.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:write
+        - oauth2Password:
+            - admin:full
+            - billing:write
+  /facturas/{id}:
+    get:
+      summary: Obtener detalle de una factura
+      tags:
+        - Facturación y Arancel
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Detalle de la factura.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Factura'
+        '404':
+          description: Factura no encontrada.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para ver facturas.
+      security:
+        - bearerAuth:
+            - billing:read
+        - oauth2Password:
+            - billing:read
+  /pagos:
+    get:
+      summary: Listar pagos realizados
+      tags:
+        - Facturación y Arancel
+      operationId: listarPagos
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Lista paginada de pagos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPagos'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a pagos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:read
+        - oauth2Password:
+            - admin:full
+            - billing:read
+    post:
+      summary: Registrar un nuevo pago
+      tags:
+        - Facturación y Arancel
+      operationId: registrarPago
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pago'
+      responses:
+        '201':
+          description: Pago registrado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para registrar pagos.
+      security:
+        - bearerAuth:
+            - admin:full
+            - billing:write
+        - oauth2Password:
+            - admin:full
+            - billing:write
+  /notificaciones:
+    get:
+      summary: Listar notificaciones
+      tags:
+        - Notificaciones
+      operationId: listarNotificaciones
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+      responses:
+        '200':
+          description: Lista paginada de notificaciones.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificaciones'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a notificaciones.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+            
+    post:
+      summary: Enviar una notificación
+      tags:
+        - Notificaciones
+      operationId: enviarNotificacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notificacion'
+      responses:
+        '202':
+          description: Notificación enviada exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado para enviar notificaciones.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+  /auth/login:
+    post:
+      summary: Autenticar usuario y obtener token JWT
+      tags:
+        - Autenticación y Usuarios
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Autenticación exitosa.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Token JWT.
+        '401':
+          description: Credenciales inválidas.
+      security: []
+  /auth/refresh:
+    post:
+      summary: Refrescar token JWT
+      tags:
+        - Autenticación y Usuarios
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Token refrescado exitosamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Nuevo token JWT.
+        '401':
+          description: Token de refresco inválido o expirado.
+      security: []
+  /usuarios:
+    get:
+      summary: Listar usuarios del sistema
+      tags:
+        - Autenticación y Usuarios
+      operationId: listarUsuarios
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Lista de usuarios.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUsuarios'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a usuarios.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+    post:
+      summary: Crear un nuevo usuario del sistema
+      tags:
+        - Autenticación y Usuarios
+      operationId: crearUsuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+      responses:
+        '201':
+          description: Usuario creado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+  /roles:
+    get:
+      summary: Listar roles disponibles en el sistema
+      tags:
+        - Autenticación y Usuarios
+      operationId: listarRoles
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Lista de roles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRoles'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a roles.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+    post:
+      summary: Crear un nuevo rol en el sistema
+      tags:
+        - Autenticación y Usuarios
+      operationId: crearRol
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rol'
+      responses:
+        '201':
+          description: Rol creado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a roles.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full  
+  /permisos:
+    get:
+      summary: Listar permisos disponibles en el sistema
+      tags:
+        - Autenticación y Usuarios
+      operationId: listarPermisos
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/pageSizeParam'
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        '200':
+          description: Lista de permisos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Permisos'
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a permisos.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+  /permisos/{id}:
+    patch:
+      summary: Actualizar un permiso en el sistema
+      tags:
+        - Autenticación y Usuarios
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      operationId: actualizarPermiso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Permisos'
+      responses:
+        '200':
+          description: Permiso actualizado exitosamente.
+        '400':
+          description: Datos de entrada incorrectos.
+        '403':
+          description: No autorizado a permisos.
+      security:
+        - bearerAuth:
+            - admin:full
+        - oauth2Password:
+            - admin:full
+components:
+  parameters:
+    idParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Id'
+      description: Identificador único del recurso.
+    pageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Número de página para la paginación.
+    pageSizeParam:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 20
+      description: Cantidad de elementos por página.
+  schemas:
+    Id:
+      type: string
+      format: uuid
+      description: Identificador único en formato UUID.
+    PaginatedPersonas:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Persona'
+    PaginatedProfesionales:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profesional'
+    PaginatedUnidades:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnidadMedica'
+    PaginatedBloquesAgenda:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BloqueAgenda'
+    PaginatedCitas:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cita'
+    PaginatedEpisodios:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Episodio'
+    PaginatedAseguradoras:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Aseguradora'
+    PaginatedPlanes:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanCobertura'
+    PaginatedAfiliaciones:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Afiliacion'
+    PaginatedPrestaciones:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prestacion'
+    PaginatedAranceles:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Arancel'
+    PaginatedFacturas:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Factura'
+    PaginatedPagos:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pago'
+    PaginatedNotificaciones:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notificacion'
+    PaginatedUsuarios:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Usuario'
+    PaginatedRoles:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rol'
+    Persona:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        tipoDocumento:
+          type: string
+          enum:
+            - CI
+            - PA
+        numeroDocumento:
+          type: string
+        nombres:
+          type: string
+        apellidos:
+          type: string
+        fechaNacimiento:
+          type: string
+          format: date
+        sexo:
+          type: string
+          enum:
+            - M
+            - F
+            - O
+        registroProfesional:
+          type: string
+        telefono:
+          type: string
+        correo:
+          type: string
+          format: email
+        contactoEmergencia:
+          type: string
+        direccion:
+          type: string
+        alergias:
+          type: array
+          items:
+            type: string
+        estado:
+          $ref: '#/components/schemas/Estado'
+      required:
+        - id
+        - nombres
+        - apellidos
+        - numeroDocumento
+        - estado
+      description: Esquema de una persona (paciente).
+    Estado:
+      type: string
+      enum:
+        - activo
+        - inactivo
+        - emitido
+        - pagado
+        - etc
+      description: Estado genérico del recurso.
+    Profesional:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        usuarioId:
+          $ref: '#/components/schemas/Id'
+        nombre:
+          type: string
+        apellido:
+          type: string
+        registroProfesional:
+          type: string
+        especialidad:
+          type: string
+        correo:
+          type: string
+          format: email
+        telefono:
+          type: string
+        estado:
+          $ref: '#/components/schemas/Estado'
+      required:
+        - id
+        - usuarioId
+        - nombre
+        - apellido
+        - especialidad
+        - estado
+      description: Esquema de un profesional de salud.
+    UnidadMedica:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        nombre:
+          type: string
+        direccion:
+          type: string
+        tipo:
+          type: string
+        telefono:
+          type: string
+        estado:
+          type: string
+          enum:
+            - activo
+            - inactivo
+            - En Mantenimiento
+            - ocupada
+      required:
+        - id
+        - nombre
+        - direccion
+        - tipo
+        - estado
+      description: Esquema de una unidad médica.
+    BloqueAgenda:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        profesionalId:
+          $ref: '#/components/schemas/Id'
+        unidadId:
+          $ref: '#/components/schemas/Id'
+        inicio:
+          type: string
+          format: date-time
+        fin:
+          type: string
+          format: date-time
+        capacidad:
+          type: integer
+        estado:
+          type: string
+          enum:
+            - disponible
+            - reservado
+            - cancelado
+      required:
+        - id
+        - profesionalId
+        - unidadId
+        - inicio
+        - fin
+        - capacidad
+        - estado
+      description: Esquema de un bloque de agenda.
+    Cita:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        personaId:
+          $ref: '#/components/schemas/Id'
+        profesionalId:
+          $ref: '#/components/schemas/Id'
+        unidadId:
+          $ref: '#/components/schemas/Id'
+        inicio:
+          type: string
+          format: date-time
+        fin:
+          type: string
+          format: date-time
+        motivo:
+          type: string
+        canal:
+          type: string
+        observaciones:
+          type: string
+        estado:
+          type: string
+          enum:
+            - programada
+            - confirmada
+            - realizada
+            - cancelada
+            - no asistida
+            - reprogramada
+      required:
+        - id
+        - personaId
+        - profesionalId
+        - unidadId
+        - estado
+      description: Esquema de una cita.
+    Episodio:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        personaId:
+          $ref: '#/components/schemas/Id'
+        fechaApertura:
+          type: string
+          format: date-time
+        motivo:
+          type: string
+        tipo:
+          type: string
+        estado:
+          $ref: '#/components/schemas/Estado'
+      required:
+        - id
+        - personaId
+        - fechaApertura
+        - motivo
+        - tipo
+        - estado
+      description: Esquema de un episodio clínico.
+    NotaClinica:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        episodioId:
+          $ref: '#/components/schemas/Id'
+        profesionalId:
+          $ref: '#/components/schemas/Id'
+        fecha:
+          type: string
+          format: date-time
+        subjetivo:
+          type: string
+        objetivo:
+          type: string
+        contenido:
+          type: string
+        plan:
+          type: string
+      required:
+        - id
+        - episodioId
+        - contenido
+        - fecha
+        - profesionalId
+        - subjetivo
+        - objetivo
+        - plan
+      description: Esquema de una nota clínica.
+    Diagnostico:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        episodioId:
+          $ref: '#/components/schemas/Id'
+        codigo:
+          type: string
+        descripcion:
+          type: string
+        tipo:
+          type: string
+          enum:
+            - principal
+            - secundario
+            - presuntivo
+        principal:
+          type: boolean
+      required:
+        - id
+        - episodioId
+        - codigo
+        - descripcion
+        - tipo
+        - principal
+      description: Esquema de un diagnóstico.
+    Consentimiento:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        personalId:
+          $ref: '#/components/schemas/Id'
+        archivoId:
+          $ref: '#/components/schemas/Id'
+        tipoProcedimiento:
+          type: string
+        fecha:
+          type: string
+          format: date-time
+        metodo:
+          type: string
+      required:
+        - id
+        - archivoId
+        - tipoProcedimiento
+        - fecha
+        - metodo
+      description: Esquema de un consentimiento informado.
+    Orden:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        episodioId:
+          $ref: '#/components/schemas/Id'
+        tipo:
+          type: string
+        prioridad:
+          type: string
+          enum:
+            - normal
+            - urgente
+            - emergencia
+        estado:
+          $ref: '#/components/schemas/Estado'
+      required:
+        - id
+        - episodioId
+        - tipo
+        - prioridad
+        - estado
+      description: Esquema de una orden médica.
+    item:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        nombre:
+          type: string
+        dosis:
+          type: string
+        via:
+          type: string
+        frecuencia:
+          type: string
+        duracion:
+          type: string
+      required:
+        - id
+        - nombre
+        - dosis
+        - via
+        - frecuencia
+        - duracion
+      description: Esquema de un item de una orden médica.
+    Resultados:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        ordenId:
+          $ref: '#/components/schemas/Id'
+        archivoId:
+          $ref: '#/components/schemas/Id'
+        fecha:
+          type: string
+          format: date-time
+        resumen:
+          type: string
+        version:
+          type: string
+      required:
+        - ordenId
+        - archivoId
+        - fecha
+        - resumen
+        - version
+      description: Esquema de los resultados de una orden médica.
+    Aseguradora:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        nombre:
+          type: string
+        nit:
+          type: string
+        contacto:
+          type: string
+        estado:
+          type: string
+          default: activo
+          enum:
+            - activo
+            - inactivo
+      required:
+        - id
+        - nombre
+        - nit
+        - contacto
+        - estado
+      description: Esquema de una aseguradora de salud.
+    PlanCobertura:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        aseguradoraId:
+          $ref: '#/components/schemas/Id'
+        nombre:
+          type: string
+        condicionesGenerales:
+          type: string
+      required:
+        - id
+        - aseguradoraId
+        - nombre
+        - condicionesGenerales
+      description: Esquema de un plan de salud.
+    Afiliacion:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        personaId:
+          $ref: '#/components/schemas/Id'
+        planId:
+          $ref: '#/components/schemas/Id'
+        aseguradoraId:
+          $ref: '#/components/schemas/Id'
+        numeroPoliza:
+          type: string
+        vigenteDesde:
+          type: string
+          format: date
+        vigenteHasta:
+          type: string
+          format: date
+        copago:
+          type: number
+        cuotaModeradora:
+          type: number
+      required:
+        - id
+        - personaId
+        - planId
+        - aseguradoraId
+        - numeroPoliza
+        - vigenteDesde
+        - vigenteHasta
+        - copago
+        - cuotaModeradora
+      description: Esquema de una afiliación de paciente a un plan de salud.
+    Prestacion:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        nombre:
+          type: string
+        grupo:
+          type: string
+        requisitos:
+          type: string
+        tiempoEstimado:
+          type: string
+      required:
+        - id
+        - nombre
+        - grupo
+        - requisitos
+        - tiempoEstimado
+      description: Esquema de una prestación de un plan de salud.
+    Arancel:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        prestacionId:
+          $ref: '#/components/schemas/Id'
+        planId:
+          $ref: '#/components/schemas/Id'
+        valorBase:
+          type: number
+        impuestos:
+          type: number
+        vigenteDesde:
+          type: string
+          format: date
+        vigenteHasta:
+          type: string
+          format: date
+      required:
+        - id
+        - prestacionId
+        - planId
+        - valorBase
+        - impuestos
+        - vigenteDesde
+        - vigenteHasta
+      description: Esquema de un arancel médico.
+    Factura:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        personaId:
+          $ref: '#/components/schemas/Id'
+        aseguradoraId:
+          $ref: '#/components/schemas/Id'
+        numero:
+          type: string
+        fechaEmision:
+          type: string
+          format: date-time
+        subtotal:
+          type: number
+        impuestos:
+          type: number
+        total:
+          type: number
+        estado:
+          type: string
+          enum:
+            - emitido
+            - pagado
+            - cancelado
+        moneda:
+          type: string
+      required:
+        - id
+        - personaId
+        - aseguradoraId
+        - numero
+        - fechaEmision
+        - subtotal
+        - impuestos
+        - total
+        - estado
+        - moneda
+      description: Esquema de una factura.
+    Pago:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        facturaId:
+          $ref: '#/components/schemas/Id'
+        fecha:
+          type: string
+          format: date-time
+        monto:
+          type: number
+        medio:
+          type: string
+        referencia:
+          type: string
+        estado:
+          type: string
+          default: pendiente
+          enum:
+            - procesado
+            - rechazado
+            - pendiente
+      required:
+        - id
+        - facturaId
+        - fecha
+        - monto
+        - medio
+        - referencia
+        - estado
+      description: Esquema de un pago realizado.
+    Notificacion:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        usuarioId:
+          $ref: '#/components/schemas/Id'
+        facturaId:
+          $ref: '#/components/schemas/Id'
+        tipo:
+          type: string
+          enum:
+            - recordatorio_pago
+            - confirmacion_pago
+            - alerta_factura
+        plantilla:
+          type: string
+        destinatario:
+          type: string
+        payload:
+          type: object
+        estado:
+          type: string
+          default: pendiente
+          enum:
+            - enviado
+            - fallido
+            - pendiente
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - id
+        - usuarioId
+        - facturaId
+        - tipo
+        - plantilla
+        - destinatario
+        - payload
+        - estado
+        - timestamp
+      description: Esquema de una notificación del sistema.
+    Usuario:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        passwordHash:
+          type: string
+        estado:
+          type: string
+          default: activo
+          enum:
+            - activo
+            - inactivo
+        fechaCreacion:
+          type: string
+          format: date-time
+      required:
+        - id
+        - username
+        - email
+        - passwordHash
+        - estado
+        - fechaCreacion
+      description: Esquema de un usuario del sistema.
+    Rol:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        nombre:
+          type: string
+        descripcion:
+          type: string
+      required:
+        - id
+        - nombre
+        - descripcion
+      description: Esquema de un rol del sistema.
+    Permisos:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        clave:
+          type: string
+        descripcion:
+          type: string
+      required:
+        - id
+        - clave
+        - descripcion
+      description: Esquema de un permiso del sistema.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        JSON Web Token (JWT) requerido para acceso. Use el encabezado
+        `Authorization: Bearer <token>`. This scheme authenticates requests by
+        validating a JWT; authorization is done by verifying token claims/roles/scopes.
+
+    oauth2Password:
+      type: oauth2
+      description: >-
+        OAuth2 (Resource Owner Password Credentials) flow included so API
+        documentation tools (e.g., Swagger UI) can request tokens with scopes
+        interactively. Tokens returned by the token endpoint should be JWTs
+        containing a `scope` or `roles` claim.
+      flows:
+        password:
+          tokenUrl: '/auth/login'
+          scopes:
+            "admin:full": "Acceso total para gestión de usuarios, catálogo, y configuraciones."
+            "clinical:read": "Permite leer registros clínicos (episodios, notas, resultados)."
+            "clinical:write": "Permite crear/modificar registros clínicos (notas, diagnósticos, órdenes)."
+            "scheduling:read": "Permite consultar agendas y citas."
+            "scheduling:write": "Permite crear, confirmar o cancelar citas."
+            "billing:read": "Permite consultar facturas, pagos y arancel."
+            "billing:write": "Permite crear facturas, registrar pagos y emitir comprobantes."
+            "auditor:read": "Permite consultar bitácoras y logs de trazabilidad."
+            "public:read": "Acceso a recursos públicos (e.g., Catálogo de Prestaciones)."
+
+security:
+  - bearerAuth: []
+  - oauth2Password: []
