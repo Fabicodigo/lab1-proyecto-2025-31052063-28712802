@@ -5,14 +5,7 @@ import identidades from './routes/identidadesroutes.js';
 import registros from './routes/registroroutes.js';
 import citas from './routes/citasroutes.js';
 import agenda from './routes/agendaroutes.js';
-// Ejemplo: index.js
-import * as dotenv from 'dotenv';
-dotenv.config(); // Carga las variables del .env
 
-// Ahora puedes importar Prisma, ya que DATABASE_URL ya está disponible
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient(); 
-// ... el resto de tu aplicación
 const app = express();
 
 app.use(bodyParser.json());

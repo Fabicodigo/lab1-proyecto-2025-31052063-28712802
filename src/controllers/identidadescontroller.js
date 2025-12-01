@@ -39,7 +39,7 @@ export const crearPersona = async (req, res, next) => {
         estado: data.estado
       }
     });
-    res.json(created);
+    res.status(201).json(created);
   } catch (error) {
     console.error('createPersona error', error);
     next(error);
