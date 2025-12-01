@@ -48,8 +48,6 @@ Instalación y Configuración
 
 2. Clonar el repositorio e instalar dependencias
 ~~~
-Bash
-
 git clone https://github.com/Fabicodigo/lab1-proyecto-2025-31052063-28712802
 cd lab1-proyecto-2025-31052063-28712802
 npm install
@@ -59,8 +57,6 @@ npm install
 
 Crea un archivo .env en la raíz del proyecto:
 ~~~
- .env
-
 # Puerto del servidor (Por defecto 4000)
 PORT=4000
 
@@ -77,15 +73,16 @@ SENDGRID_FROM_EMAIL="no-reply@tuapp.com"
 
 Ejecucion de la migracion de Prisma para crear la base de datos MySQL:
 ~~~
-Bash
-
 npx prisma migrate dev --name init
+~~~
+
+Generacion del cliente Prisma:
+~~~
+npx prisma generate
 ~~~
 
 Poblar la base de datos con los datos de prueba:
 ~~~
-Bash
-
 npm run seed
 ~~~
 
@@ -95,15 +92,11 @@ Ejecución
 
 Modo Desarrollo (con Nodemon)
 ~~~
-Bash
-
 npm run dev
 ~~~
 
 Modo Producción
 ~~~
-Bash
-
 npm start
 ~~~
 
