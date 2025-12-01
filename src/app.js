@@ -5,6 +5,9 @@ import identidades from './routes/identidadesroutes.js';
 import registros from './routes/registroroutes.js';
 import citas from './routes/citasroutes.js';
 import agenda from './routes/agendaroutes.js';
+import pagos from './routes/pagosroutes.js';
+
+
 // Ejemplo: index.js
 import * as dotenv from 'dotenv';
 dotenv.config(); // Carga las variables del .env
@@ -23,6 +26,7 @@ app.use('/', identidades);
 app.use('/', registros);
 app.use('/', citas);
 app.use('/', agenda);
+app.use('/', pagos);
 
 app.listen(app.get('port'));
 console.log(`Server is running on port ${app.get('port')}`);
