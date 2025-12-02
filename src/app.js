@@ -1,5 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import 'dotenv/config';
+
 
 import identidades from './routes/identidadesroutes.js';
 import registros from './routes/registroroutes.js';

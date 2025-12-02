@@ -39,7 +39,7 @@ export const crearPersona = async (req, res, next) => {
         estado: data.estado
       }
     });
-    res.status(201).json(created);
+    res.json(created);
   } catch (error) {
     console.error('createPersona error', error);
     next(error);
@@ -142,6 +142,7 @@ export const crearProfesional = async (req, res, next) => {
         apellidos: data.apellidos,
         registroProfesional: data.registroProfesional,
         correo: data.correo,
+        telefono: data.telefono,
         especialidad: data.especialidad,
         estado: data.estado
       }
@@ -163,6 +164,7 @@ export const actualizarProfesional = async (req, res, next) => {
     if (data.apellidos) actualizar.apellidos = data.apellidos;
     if (data.registroProfesional) actualizar.registroProfesional = data.registroProfesional;
     if (data.correo) actualizar.correo = data.correo;
+    if (data.telefono) actualizar.telefono = data.telefono;
     if (data.especialidad) actualizar.especialidad = data.especialidad;
     if (data.estado) actualizar.estado = data.estado;
 
