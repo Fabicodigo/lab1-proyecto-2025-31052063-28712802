@@ -10,7 +10,7 @@ Utiliza Prisma ORM para la interacción con una base de datos MySQL y sigue una 
 
 Características Principales
 
-    Gestión de Identidades: CRUD completo para Personas (Pacientes), Profesionales y Unidades de Atención.
+    Gestión de Identidades: CRUD completo para Personas (Pacientes), Profesionales y Unidades de Atención
 
     Registro Clínico: Manejo de episodios de atención, notas clínicas, diagnósticos y consentimientos.
 
