@@ -50,7 +50,7 @@ Instalación y Configuración
 ~~~
 git clone https://github.com/Fabicodigo/lab1-proyecto-2025-31052063-28712802
 cd lab1-proyecto-2025-31052063-28712802
-npm install
+npm ci
 ~~~
 
 3. Configuración de Variables de Entorno
