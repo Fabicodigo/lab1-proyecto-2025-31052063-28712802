@@ -7,6 +7,9 @@ import identidades from './routes/identidadesroutes.js';
 import registros from './routes/registroroutes.js';
 import citas from './routes/citasroutes.js';
 import agenda from './routes/agendaroutes.js';
+import ordenes from './routes/ordenesroutes.js';
+import prescripciones from './routes/prescripcionesroutes.js';
+import resultados from './routes/resultadosroutes.js';
 
 const app = express();
 
@@ -18,6 +21,9 @@ app.use('/', identidades);
 app.use('/', registros);
 app.use('/', citas);
 app.use('/', agenda);
+app.use('/', ordenes);
+app.use('/', prescripciones);
+app.use('/', resultados);
 
 app.listen(app.get('port'));
 console.log(`Server is running on port ${app.get('port')}`);
