@@ -11,6 +11,7 @@ import ordenes from './routes/ordenesroutes.js';
 import prescripciones from './routes/prescripcionesroutes.js';
 import resultados from './routes/resultadosroutes.js';
 
+
 const app = express();
 
 app.use(bodyParser.json());
