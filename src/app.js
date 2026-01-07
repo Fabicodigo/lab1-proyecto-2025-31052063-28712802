@@ -19,6 +19,7 @@ import arancel from './routes/arancelroutes.js';
 import facturas from './routes/facturasroutes.js';
 import pagos from './routes/pagosroutes.js';
 import mensajeria from './routes/mensajeriaroutes.js';
+import bitacora from './routes/bitacoraAccesosroutes.js';
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/', arancel);
 app.use('/', facturas);
 app.use('/', pagos);
 app.use('/', mensajeria);
+app.use('/', bitacora);
 
 app.listen(app.get('port'));
 console.log(`Server is running on port ${app.get('port')}`);
