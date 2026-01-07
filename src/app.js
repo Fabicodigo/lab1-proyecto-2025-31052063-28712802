@@ -10,7 +10,10 @@ import agenda from './routes/agendaroutes.js';
 import ordenes from './routes/ordenesroutes.js';
 import prescripciones from './routes/prescripcionesroutes.js';
 import resultados from './routes/resultadosroutes.js';
-
+import aseguradoras from './routes/aseguradorasroutes.js';
+import planesCobertura from './routes/planesCoberturaroutes.js';
+import afiliaciones from './routes/afiliacionesroutes.js';
+import autorizaciones from './routes/autorizacionesroutes.js';
 
 const app = express();
 
@@ -25,6 +28,10 @@ app.use('/', agenda);
 app.use('/', ordenes);
 app.use('/', prescripciones);
 app.use('/', resultados);
+app.use('/', aseguradoras);
+app.use('/', planesCobertura);
+app.use('/', afiliaciones);
+app.use('/', autorizaciones);
 
 app.listen(app.get('port'));
 console.log(`Server is running on port ${app.get('port')}`);
