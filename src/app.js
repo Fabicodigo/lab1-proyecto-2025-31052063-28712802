@@ -14,6 +14,8 @@ import aseguradoras from './routes/aseguradorasroutes.js';
 import planesCobertura from './routes/planesCoberturaroutes.js';
 import afiliaciones from './routes/afiliacionesroutes.js';
 import autorizaciones from './routes/autorizacionesroutes.js';
+import prestaciones from './routes/prestacionesroutes.js';
+import arancel from './routes/arancelroutes.js';
 
 const app = express();
 
@@ -32,6 +34,8 @@ app.use('/', aseguradoras);
 app.use('/', planesCobertura);
 app.use('/', afiliaciones);
 app.use('/', autorizaciones);
+app.use('/', prestaciones);
+app.use('/', arancel);
 
 app.listen(app.get('port'));
 console.log(`Server is running on port ${app.get('port')}`);
