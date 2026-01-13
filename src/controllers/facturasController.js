@@ -2,7 +2,6 @@ import { prisma } from '../prisma.js';
 import { mapEntity } from '../utils/responseMapper.js';
 import parsePositiveInt from '../utils/ParsePositive.js';
 
-
 export const listarFacturas = async (req, res, next) => {
   try {
     const page = parsePositiveInt(req.query.page, 1);
@@ -18,7 +17,8 @@ export const listarFacturas = async (req, res, next) => {
       where,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      include: { items: true },
+      // CORRECCIÓN: La relación en schema.prisma se llama 'facturaitem', no 'items'
+      include: { facturaitem: true }, 
       orderBy: { fechaEmision: 'desc' }
     });
 
@@ -29,20 +29,21 @@ export const listarFacturas = async (req, res, next) => {
   }
 };
 
-
 export const crearFactura = async (req, res, next) => {
   try {
     const { 
-      numero, personaId, aseguradoraId, moneda, items, estado 
+      numero, personaId, aseguradoraId, moneda, items, estado, total 
     } = req.body;
 
-    
+    // Validación para evitar crash si no envían items
+    const listaItems = Array.isArray(items) ? items : [];
+
     let subtotalAcumulado = 0;
     let totalAcumulado = 0;
 
-    const itemsProcesados = items.map(item => {
+    const itemsProcesados = listaItems.map(item => {
       const cantidad = Number(item.cantidad) || 1;
-      const valorUnitario = Number(item.valorUnitario);
+      const valorUnitario = Number(item.valorUnitario) || 0;
       const impuestos = Number(item.impuestos) || 0;
       const totalItem = (valorUnitario * cantidad) + impuestos;
 
@@ -50,7 +51,8 @@ export const crearFactura = async (req, res, next) => {
       totalAcumulado += totalItem;
 
       return {
-        prestacionCodigo: item.prestacionCodigo,
+        // CORRECCIÓN: Usar campos reales de la BD
+        prestacionId: item.prestacionId ? Number(item.prestacionId) : null, 
         descripcion: item.descripcion,
         cantidad: cantidad,
         valorUnitario: valorUnitario,
@@ -59,7 +61,12 @@ export const crearFactura = async (req, res, next) => {
       };
     });
 
-   
+    // Si no hay items, confiamos en el total enviado o ponemos 0
+    if (itemsProcesados.length === 0 && total) {
+        totalAcumulado = Number(total);
+        subtotalAcumulado = Number(total); // Simplificación
+    }
+
     const created = await prisma.facturas.create({
       data: {
         numero,
@@ -70,26 +77,29 @@ export const crearFactura = async (req, res, next) => {
         subtotal: subtotalAcumulado,
         total: totalAcumulado,
         estado: estado || 'emitida',
-        items: {
+        // CORRECCIÓN: La relación es 'facturaitem'
+        facturaitem: {
           create: itemsProcesados
         }
       },
-      include: { items: true }
+      // CORRECCIÓN: include correcto
+      include: { facturaitem: true } 
     });
 
     res.status(201).json(mapEntity(created));
   } catch (error) {
+    console.error('Error creando factura:', error);
     next(error);
   }
 };
-
 
 export const facturaPorId = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const factura = await prisma.facturas.findUnique({
       where: { id },
-      include: { items: true }
+      // CORRECCIÓN: include correcto
+      include: { facturaitem: true } 
     });
 
     if (!factura) {
@@ -103,7 +113,6 @@ export const facturaPorId = async (req, res, next) => {
     next(err);
   }
 };
-
 
 export const actualizarEstadoFactura = async (req, res, next) => {
   try {
@@ -120,7 +129,6 @@ export const actualizarEstadoFactura = async (req, res, next) => {
     next(err);
   }
 };
-
 
 export const anularFactura = async (req, res, next) => {
   try {

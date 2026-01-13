@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as ordenesController from '../controllers/ordenescontroller.js';
+import * as ordenesController from '../controllers/ordenesController.js';
 const router = Router();
 
 

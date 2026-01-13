@@ -2,24 +2,25 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import 'dotenv/config';
 
-
-import identidades from './routes/identidadesroutes.js';
-import registros from './routes/registroroutes.js';
-import citas from './routes/citasroutes.js';
-import agenda from './routes/agendaroutes.js';
-import ordenes from './routes/ordenesroutes.js';
-import prescripciones from './routes/prescripcionesroutes.js';
-import resultados from './routes/resultadosroutes.js';
-import aseguradoras from './routes/aseguradorasroutes.js';
-import planesCobertura from './routes/planesCoberturaroutes.js';
-import afiliaciones from './routes/afiliacionesroutes.js';
-import autorizaciones from './routes/autorizacionesroutes.js';
-import prestaciones from './routes/prestacionesroutes.js';
-import arancel from './routes/arancelroutes.js';
-import facturas from './routes/facturasroutes.js';
-import pagos from './routes/pagosroutes.js';
-import mensajeria from './routes/mensajeriaroutes.js';
-import bitacora from './routes/bitacoraAccesosroutes.js';
+import personas from './routes/personasRoutes.js';
+import episodios from './routes/episodiosRoutes.js';
+import citas from './routes/citasRoutes.js';
+import agenda from './routes/agendaRoutes.js';
+import ordenes from './routes/ordenesRoutes.js';
+import prescripciones from './routes/prescripcionesRoutes.js';
+import resultados from './routes/resultadosRoutes.js';
+import aseguradoras from './routes/aseguradorasRoutes.js';
+import planesCobertura from './routes/planesCoberturaRoutes.js';
+import afiliaciones from './routes/afiliacionesRoutes.js';
+import autorizaciones from './routes/autorizacionesRoutes.js';
+import prestaciones from './routes/prestacionesRoutes.js';
+import arancel from './routes/arancelRoutes.js';
+import facturas from './routes/facturasRoutes.js';
+import pagos from './routes/pagosRoutes.js';
+import mensajeria from './routes/mensajeriaRoutes.js';
+import bitacora from './routes/bitacoraAccesosRoutes.js';
+import profesionales from './routes/profesionalesRoutes.js';
+import unidades from './routes/unidadesRoutes.js';
 
 const app = express();
 
@@ -27,8 +28,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('port', process.env.PORT || 4000);
 
-app.use('/', identidades);
-app.use('/', registros);
+app.use('/', personas);
+app.use('/', episodios);
 app.use('/', citas);
 app.use('/', agenda);
 app.use('/', ordenes);
@@ -44,6 +45,14 @@ app.use('/', facturas);
 app.use('/', pagos);
 app.use('/', mensajeria);
 app.use('/', bitacora);
+app.use('/', profesionales);
+app.use('/', unidades);
 
-app.listen(app.get('port'));
-console.log(`Server is running on port ${app.get('port')}`);
+if (process.env.NODE_ENV !== 'test') {
+    const port = app.get('port');
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}
+
+export default app;

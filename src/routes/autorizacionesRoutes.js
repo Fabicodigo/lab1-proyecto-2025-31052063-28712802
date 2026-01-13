@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as autController from '../controllers/autorizacionescontroller.js';
+import * as autController from '../controllers/autorizacionesController.js';
 
 const router = Router();
 

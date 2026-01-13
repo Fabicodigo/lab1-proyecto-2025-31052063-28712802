@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as afilController from '../controllers/afiliacionescontroller.js';
+import * as afilController from '../controllers/afiliacionesController.js';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as arancelController from '../controllers/arancelcontroller.js';
+import * as arancelController from '../controllers/arancelController.js';
 
 const router = Router();
 

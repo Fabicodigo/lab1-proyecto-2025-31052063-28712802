@@ -1,6 +1,7 @@
 import { prisma } from '../prisma.js';
 import { mapEntity } from '../utils/responseMapper.js';
 import parsePositiveInt from '../utils/ParsePositive.js';
+import * as citasService from '../services/citasService.js';
 
 const citaInclude = {
     profesionales: { select: { nombres: true, apellidos: true } },
@@ -33,26 +34,9 @@ export const listarCitas = async (req, res, next) => {
 
 export const crearCita = async (req, res, next) => {
   try {
-    const data = req.body;
-    
-    const created = await prisma.citas.create({ 
-        data: {
-            personaId: data.personaId ? Number(data.personaId) : null,
-            profesionalId: data.profesionalId ? Number(data.profesionalId) : null,
-            unidadId: data.unidadId ? Number(data.unidadId) : null,
-            
-            inicio: data.inicio ? new Date(data.inicio) : null, 
-            fin: data.fin ? new Date(data.fin) : null,
-
-            motivo: data.motivo || null,
-            canal: data.canal || 'Presencial', 
-            observaciones: data.observaciones || null,
-            estado: data.estado || 'Agendada', 
-        }
-    });
+    const created = await citasService.agendarCita(req.body);
     res.status(201).json(created);
   } catch (error) {
-    console.error('CreateDate error', error);
     next(error);
   }
 };
@@ -78,36 +62,12 @@ export const CitaPorId = async (req, res, next) => {
 };
 
 export const actualizarCita = async (req, res, next) => {
-  const id = Number(req.params.id);
-  const data = req.body;
-
   try {
-    if (data.estado === "Desactivado") {
-        const error = new Error("No está permitido cambiar el estado a 'Desactivado' por PATCH. Use DELETE.");
-        error.statusCode = 400;
-        throw error;
-    }
-
-    const actualizar = {};
-
-    if (data.personaId !== undefined) actualizar.personaId = data.personaId ? Number(data.personaId) : null;
-    if (data.profesionalId !== undefined) actualizar.profesionalId = data.profesionalId ? Number(data.profesionalId) : null;
-    if (data.unidadId !== undefined) actualizar.unidadId = data.unidadId ? Number(data.unidadId) : null;
-    
-    if (data.inicio) actualizar.inicio = new Date(data.inicio); 
-    if (data.fin) actualizar.fin = new Date(data.fin); 
-
-    if (data.motivo) actualizar.motivo = data.motivo;
-    if (data.canal) actualizar.canal = data.canal;
-    if (data.observaciones) actualizar.observaciones = data.observaciones;
-    if (data.estado) actualizar.estado = data.estado;
-
-
-    const actualizado = await prisma.citas.update({ where: { id }, data: actualizar });
-    return res.json(actualizado);
+    const id = Number(req.params.id);
+    const updated = await citasService.reprogramarCita(id, req.body);
+    res.json(updated);
   } catch (error) {
-    console.error('updateCita error', error);
-   next(error);
+    next(error);
   }
 };
 

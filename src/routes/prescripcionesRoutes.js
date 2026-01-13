@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as prescripcionesController from '../controllers/prescripcionescontroller.js';
+import * as prescripcionesController from '../controllers/prescripcionesController.js';
 const router = Router();
 
 

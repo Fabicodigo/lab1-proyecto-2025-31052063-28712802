@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as prestController from '../controllers/prestacionescontroller.js';
+import * as prestController from '../controllers/prestacionesController.js';
 
 const router = Router();
 

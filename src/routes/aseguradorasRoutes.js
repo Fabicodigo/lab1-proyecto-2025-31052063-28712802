@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as asegController from '../controllers/aseguradorascontroller.js';
+import * as asegController from '../controllers/aseguradorasController.js';
 
 const router = Router();
 

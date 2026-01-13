@@ -1,6 +1,7 @@
 import { prisma } from '../prisma.js';
 import { mapEntity } from '../utils/responseMapper.js';
 import parsePositiveInt from '../utils/ParsePositive.js';
+import * as agendaService from '../services/agendaService.js';
 
 const agendaInclude = {
     profesionales: { select: { nombres: true, apellidos: true } },
@@ -33,30 +34,10 @@ export const listarAgenda = async (req, res, next) => {
 
 export const crearAgenda = async (req, res, next) => {
   try {
-    const data = req.body;
-    
-    if (!data.profesionalId || !data.unidadId || !data.inicio || !data.fin) {
-      const error = new Error("Faltan campos obligatorios (profesionalId, unidadId, inicio, fin).");
-      error.statusCode = 400;
-      throw error;
-    }
-
-    const created = await prisma.agenda.create({ 
-        data: {
-            profesionalId: Number(data.profesionalId),
-            unidadId: Number(data.unidadId),
-            
-            inicio: new Date(data.inicio), 
-            fin: new Date(data.fin), 
-
-            capacidad: data.capacidad ? Number(data.capacidad) : null,
-            estado: data.estado || 'Disponible', 
-        }
-    });
+    const created = await agendaService.crearBloqueAgenda(req.body);
     res.status(201).json(created);
   } catch (error) {
-    console.error('Error creating agenda:', error);
-    next(error);
+    next(error); // El errorHandler captura el AppError(400/409)
   }
 };
 

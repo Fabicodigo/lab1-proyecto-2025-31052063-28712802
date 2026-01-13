@@ -1,6 +1,11 @@
 import { Router } from 'express';
-import * as agendaController from '../controllers/agendacontroller.js';
+import * as agendaController from '../controllers/agendaController.js';
+import { validate } from '../middlewares/validateRequest.js';
+import { agendaSchema } from '../validators/schemas.js';
+
 const router = Router();
+
+router.post('/agenda', validate(agendaSchema), agendaController.crearAgenda);
 
 router.get('/agenda', agendaController.listarAgenda);
 router.post('/agenda', agendaController.crearAgenda);

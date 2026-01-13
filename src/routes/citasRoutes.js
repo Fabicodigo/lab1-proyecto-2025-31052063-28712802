@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as citasController from '../controllers/citascontroller.js';
+import * as citasController from '../controllers/citasController.js';
 const router = Router();
 
 router.get('/citas', citasController.listarCitas);
