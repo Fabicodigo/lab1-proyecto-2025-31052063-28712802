@@ -8,7 +8,7 @@ export const crearEpisodio = async (req, res, next) => {
     const data = req.body;
     
 
-    const created = await prisma.episodiosatencion.create({ 
+    const created = await prisma.episodiosAtencion.create({ 
         data: {
             personaId: Number(data.personaId),
             profesionalId: data.profesionalId ? Number(data.profesionalId) : null,
@@ -37,7 +37,7 @@ export const listarEpisodios = async (req, res, next) => {
     if (personaId) where.personaId = Number(personaId);
     if (estado) where.estado = estado;
 
-    const rawData = await prisma.episodiosatencion.findMany({
+    const rawData = await prisma.episodiosAtencion.findMany({
         where,
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -59,7 +59,7 @@ export const listarEpisodios = async (req, res, next) => {
 export const obtenerEpisodio = async (req, res, next) => {
     try {
         const id = Number(req.params.id);
-        const episodio = await prisma.episodiosatencion.findUnique({
+        const episodio = await prisma.episodiosAtencion.findUnique({
             where: { id },
             include: {
                 notasclinicas: true,
@@ -88,7 +88,7 @@ export const notasEnEpisodio = async (req, res, next) => {
     const pageSize = parsePositiveInt(req.query.pageSize, 20);
 
     const episodioId = Number(req.params.id);
-    const notas = await prisma.notasclinicas.findMany({
+    const notas = await prisma.notasClinicas.findMany({
         where: { episodioId },
         orderBy: { fecha: 'desc' }
     });
@@ -110,7 +110,7 @@ export const crearNotaEnEpisodio = async (req, res, next) => {
         throw err;
     }
 
-    const Nota = await prisma.notasclinicas.create({
+    const Nota = await prisma.notasClinicas.create({
         data: {
             episodioId,
             profesionalId: Number(data.profesionalId),

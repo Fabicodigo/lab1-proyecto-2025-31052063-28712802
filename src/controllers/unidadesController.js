@@ -7,7 +7,7 @@ export const listarUnidades = async (req, res, next) => {
     const page = parsePositiveInt(req.query.page, 1);
     const pageSize = parsePositiveInt(req.query.pageSize, 20);
 
-    const rows = await prisma.unidadesatencion.findMany({
+    const rows = await prisma.unidadesAtencion.findMany({
         skip: (page - 1) * pageSize,
         take: pageSize,
         orderBy: { nombre: 'asc' }
@@ -24,7 +24,7 @@ export const listarUnidades = async (req, res, next) => {
 export const crearUnidad = async (req, res, next) => {
   try {
     const data = req.body;
-    const created = await prisma.unidadesatencion.create({
+    const created = await prisma.unidadesAtencion.create({
       data: {
         nombre: data.nombre,
         direccion: data.direccion,
@@ -52,7 +52,7 @@ export const actualizarUnidad = async (req, res, next) => {
     if (data.correo) actualizar.correo = data.correo;
     if (data.estado) actualizar.estado = data.estado;
 
-    const actualizado = await prisma.unidadesatencion.update({ where: { id }, data: actualizar });
+    const actualizado = await prisma.unidadesAtencion.update({ where: { id }, data: actualizar });
     return res.json(actualizado);
   } catch (err) {
     return next(err);
@@ -62,7 +62,7 @@ export const actualizarUnidad = async (req, res, next) => {
 export const desactivarUnidad = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
-    await prisma.unidadesatencion.update({ where: { id }, data: { estado: 'Desactivado' } });
+    await prisma.unidadesAtencion.update({ where: { id }, data: { estado: 'Desactivado' } });
     return res.status(204).send();
   } catch (err) {
     console.error('desactivarUnidad error', err);

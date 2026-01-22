@@ -7,7 +7,7 @@ export const listarPersonas = async (req, res, next) => {
     const page = parsePositiveInt(req.query.page, 1);
     const pageSize = parsePositiveInt(req.query.pageSize, 20);
 
-    const rawData = await prisma.personasatendidas.findMany();
+    const rawData = await prisma.personasAtendidas.findMany();
     
     const data = rawData.map(p => mapEntity(p, {
       dateFields: ['fechaNacimiento'],
@@ -23,7 +23,7 @@ export const listarPersonas = async (req, res, next) => {
 export const crearPersona = async (req, res, next) => {
   try {
     const data = req.body;
-    const created = await prisma.personasatendidas.create({
+    const created = await prisma.personasAtendidas.create({
       data: {
         tipoDocumento: data.tipoDocumento,
         numeroDocumento: data.numeroDocumento,
@@ -49,7 +49,7 @@ export const crearPersona = async (req, res, next) => {
 export const PersonaporId = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
-    const item = await prisma.personasatendidas.findUnique({ where: { id } });
+    const item = await prisma.personasAtendidas.findUnique({ where: { id } });
     if (!item){
       const error = new Error("Persona no encontrada");
       error.statusCode = 404;
@@ -94,7 +94,7 @@ export const actualizarPersona = async (req, res, next) => {
         : data.alergias;
     }
 
-    const actualizado = await prisma.personasatendidas.update({ where: { id }, data: actualizar });
+    const actualizado = await prisma.personasAtendidas.update({ where: { id }, data: actualizar });
     return res.json(actualizado);
   } catch (error) {
     console.error('updatePersona error', error);

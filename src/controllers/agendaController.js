@@ -37,7 +37,7 @@ export const crearAgenda = async (req, res, next) => {
     const created = await agendaService.crearBloqueAgenda(req.body);
     res.status(201).json(created);
   } catch (error) {
-    next(error); // El errorHandler captura el AppError(400/409)
+    next(error); 
   }
 };
 

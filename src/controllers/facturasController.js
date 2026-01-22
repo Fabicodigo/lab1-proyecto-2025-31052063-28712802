@@ -17,7 +17,7 @@ export const listarFacturas = async (req, res, next) => {
       where,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      // CORRECCIÓN: La relación en schema.prisma se llama 'facturaitem', no 'items'
+    
       include: { facturaitem: true }, 
       orderBy: { fechaEmision: 'desc' }
     });
@@ -35,7 +35,7 @@ export const crearFactura = async (req, res, next) => {
       numero, personaId, aseguradoraId, moneda, items, estado, total 
     } = req.body;
 
-    // Validación para evitar crash si no envían items
+  
     const listaItems = Array.isArray(items) ? items : [];
 
     let subtotalAcumulado = 0;
@@ -51,7 +51,7 @@ export const crearFactura = async (req, res, next) => {
       totalAcumulado += totalItem;
 
       return {
-        // CORRECCIÓN: Usar campos reales de la BD
+     
         prestacionId: item.prestacionId ? Number(item.prestacionId) : null, 
         descripcion: item.descripcion,
         cantidad: cantidad,
@@ -61,10 +61,10 @@ export const crearFactura = async (req, res, next) => {
       };
     });
 
-    // Si no hay items, confiamos en el total enviado o ponemos 0
+  
     if (itemsProcesados.length === 0 && total) {
         totalAcumulado = Number(total);
-        subtotalAcumulado = Number(total); // Simplificación
+        subtotalAcumulado = Number(total); 
     }
 
     const created = await prisma.facturas.create({
@@ -77,12 +77,12 @@ export const crearFactura = async (req, res, next) => {
         subtotal: subtotalAcumulado,
         total: totalAcumulado,
         estado: estado || 'emitida',
-        // CORRECCIÓN: La relación es 'facturaitem'
+      
         facturaitem: {
           create: itemsProcesados
         }
       },
-      // CORRECCIÓN: include correcto
+    
       include: { facturaitem: true } 
     });
 
@@ -98,7 +98,7 @@ export const facturaPorId = async (req, res, next) => {
     const id = Number(req.params.id);
     const factura = await prisma.facturas.findUnique({
       where: { id },
-      // CORRECCIÓN: include correcto
+   
       include: { facturaitem: true } 
     });
 
