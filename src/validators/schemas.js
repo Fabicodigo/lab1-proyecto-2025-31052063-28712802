@@ -247,3 +247,16 @@ export const notificacionSchema = Joi.object({
   plantilla: textoBasico.optional(),
   payload: textoLargo // JSON string o texto del mensaje
 });
+
+// ==========================================
+// 9. CONSENTIMIENTOS
+// ==========================================
+
+export const consentimientoSchema = Joi.object({
+  episodioId: idSchema.optional(), // Puede venir por URL
+  tipoProcedimiento: textoBasico.required(), // Ej: "Cirugía Menor"
+  nombre: textoBasico.required(), // Nombre del paciente o representante
+  fecha: fecha.default(() => new Date()), // Fecha de firma
+  documentoIdentidad: textoBasico.optional(), // Cédula de quien firma
+  observaciones: textoLargo.optional()
+});

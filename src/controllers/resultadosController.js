@@ -55,6 +55,18 @@ export const crearResultado = async (req, res, next) => {
 };
 
 
+export const obtenerHistorialResultado = async (req, res, next) => {
+    try {
+        const id = Number(req.params.id);
+        const historial = await prisma.resultadosHistorial.findMany({
+            where: { resultadoId: id },
+            orderBy: { version: 'desc' },
+            include: { usuario: { select: { username: true } } }
+        });
+        res.json(historial);
+    } catch(error) { next(error); }
+};
+
 export const ResultadoPorId = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
@@ -76,34 +88,37 @@ export const ResultadoPorId = async (req, res, next) => {
   }
 };
 
-/**
- * @description Actualiza parcialmente un resultado por su ID.
- */
 export const actualizarResultado = async (req, res, next) => {
   const id = Number(req.params.id);
-  const data = req.body;
+  const { informe, conclusiones, usuarioId, motivo } = req.body; // Extraemos usuario y motivo
 
   try {
     const actualizar = {};
-
-    if (data.ordenId !== undefined) actualizar.ordenId = data.ordenId ? Number(data.ordenId) : null;
-    if (data.archivoId !== undefined) actualizar.archivoId = data.archivoId ? Number(data.archivoId) : null;
     
-    if (data.resumen !== undefined) actualizar.resumen = data.resumen;
-    if (data.version !== undefined) actualizar.version = Number(data.version);
-    if (data.fecha) actualizar.fecha = new Date(data.fecha);
+    // Mapeo de campos normales
+    if (informe !== undefined) actualizar.informe = informe;
+    if (conclusiones !== undefined) actualizar.conclusiones = conclusiones;
+    
+    // 👇 INYECCIÓN PARA EL MIDDLEWARE (prisma.js)
+    // Esto es lo que dispara la creación automática del historial
+    actualizar._usuarioId = usuarioId;
+    actualizar._motivo = motivo;
 
-    const actualizado = await prisma.resultados.update({ where: { id }, data: actualizar });
-    return res.json(actualizado);
+    // Eliminamos lógica manual de versiones (prisma.js lo hace solo)
+    // if (data.version !== undefined) ... <-- ELIMINADO
+
+    const actualizado = await prisma.resultados.update({ 
+        where: { id }, 
+        data: actualizar 
+    });
+    
+    return res.json(mapEntity(actualizado));
   } catch (error) {
     console.error('updateResultado error', error);
-   next(error);
+    next(error);
   }
 };
 
-/**
- * @description Elimina un resultado por su ID.
- */
 export const eliminarResultado = async (req, res, next) => {
   try {
     const id = Number(req.params.id);

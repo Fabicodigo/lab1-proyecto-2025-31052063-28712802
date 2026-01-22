@@ -379,7 +379,6 @@ model resultados {
   ordenId   Int?
   archivoId Int?
   resumen   String?  @db.Text
-  version   String?  @db.VarChar(20)
   fecha     DateTime @db.Date
   ordenes   ordenes? @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "resultados_ibfk_1")
   archivo   archivo? @relation(fields: [archivoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "resultados_ibfk_2")

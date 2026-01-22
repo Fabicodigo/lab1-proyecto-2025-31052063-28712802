@@ -1,14 +1,16 @@
 import { Router } from 'express';
 import * as resultadosController from '../controllers/resultadosController.js';
+import { validate } from '../middlewares/validateRequest.js';
+import { resultadoSchema } from '../validators/schemas.js';
+
 const router = Router();
 
-
 router.get('/resultados', resultadosController.listarResultados);
-router.post('/resultados', resultadosController.crearResultado);
-
+router.post('/resultados', validate(resultadoSchema), resultadosController.crearResultado);
 
 router.get('/resultados/:id', resultadosController.ResultadoPorId);
-router.patch('/resultados/:id', resultadosController.actualizarResultado);
 router.delete('/resultados/:id', resultadosController.eliminarResultado); 
+
+router.get('/resultados/:id/historial', resultadosController.obtenerHistorialResultado);
 
 export default router;
