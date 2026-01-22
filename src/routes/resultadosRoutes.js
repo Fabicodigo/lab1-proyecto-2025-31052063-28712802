@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as resultadosController from '../controllers/resultadosController.js';
 import { validate } from '../middlewares/validateRequest.js';
-import { resultadoSchema } from '../validators/schemas.js';
+import { resultadoSchema, resultadoUpdateSchema } from '../validators/schemas.js';
 
 const router = Router();
 
