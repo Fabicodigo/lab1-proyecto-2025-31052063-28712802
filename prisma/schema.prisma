@@ -277,24 +277,6 @@ model NotasClinicas {
   @@map("notasclinicas")
 }
 
-model Notificaciones {
-  id           Int       @id @default(autoincrement())
-  usuarioId    Int?
-  facturaId    Int?
-  tipo         String?   @db.VarChar(50)
-  plantilla    String?   @db.VarChar(100)
-  destinatario String?   @db.VarChar(255)
-  payload      String?   @db.Text
-  estado       String?   @db.VarChar(50)
-  timestamp    DateTime? @db.DateTime(0)
-  usuarios     usuarios? @relation(fields: [usuarioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notificaciones_ibfk_1")
-  facturas     facturas? @relation(fields: [facturaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notificaciones_ibfk_2")
-
-  @@index([facturaId], map: "facturaId")
-  @@index([usuarioId], map: "usuarioId")
-  @@map("notificaciones")
-}
-
 model ordenes {
   id    Int     @id @default(autoincrement())
   episodioId        Int?
