@@ -13,7 +13,6 @@ export const crearEpisodio = async (req, res, next) => {
             personaId: Number(data.personaId),
             profesionalId: data.profesionalId ? Number(data.profesionalId) : null,
             unidadId: data.unidadId ? Number(data.unidadId) : null,
-            
             motivo: data.motivo,
             tipo: data.tipo,
             estado: data.estado || 'Abierto',
@@ -43,7 +42,7 @@ export const listarEpisodios = async (req, res, next) => {
         take: pageSize,
         orderBy: { fechaApertura: 'desc' },
         include: {
-            personasatendidas: {
+            personasAtendidas: {
                 select: { nombres: true, apellidos: true, numeroDocumento: true }
             }
         }

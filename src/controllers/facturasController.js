@@ -18,7 +18,7 @@ export const listarFacturas = async (req, res, next) => {
       skip: (page - 1) * pageSize,
       take: pageSize,
     
-      include: { facturaitem: true }, 
+      include: { facturaItem: true }, 
       orderBy: { fechaEmision: 'desc' }
     });
 

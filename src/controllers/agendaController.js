@@ -5,7 +5,7 @@ import * as agendaService from '../services/agendaService.js';
 
 const agendaInclude = {
     profesionales: { select: { nombres: true, apellidos: true } },
-    unidadesatencion: { select: { nombre: true } }
+    unidadesAtencion: { select: { nombre: true } }
 };
 
 

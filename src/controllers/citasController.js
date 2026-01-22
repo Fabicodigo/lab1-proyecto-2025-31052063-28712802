@@ -5,8 +5,8 @@ import * as citasService from '../services/citasService.js';
 
 const citaInclude = {
     profesionales: { select: { nombres: true, apellidos: true } },
-    personasatendidas: { select: { nombres: true, apellidos: true, numeroDocumento: true } },
-    unidadesatencion: { select: { nombre: true } }
+    personasAtendidas: { select: { nombres: true, apellidos: true, numeroDocumento: true } },
+    unidadesAtencion: { select: { nombre: true } }
 };
 
 export const listarCitas = async (req, res, next) => {
