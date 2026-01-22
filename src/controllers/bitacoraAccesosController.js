@@ -14,7 +14,7 @@ export const listarBitacora = async (req, res, next) => {
     if (accion) where.accion = accion;
     if (recurso) where.recurso = { contains: recurso };
 
-    const rawData = await prisma.bitacoraAccesos.findMany({
+    const rawData = await prisma.bitacoraaccesos.findMany({
       where,
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -33,7 +33,7 @@ export const registrarAcceso = async (req, res, next) => {
   try {
     const { usuarioId, recurso, accion, ip, userAgent } = req.body;
     
-    const created = await prisma.bitacoraAccesos.create({
+    const created = await prisma.bitacoraaccesos.create({
       data: {
         usuarioId: usuarioId ? Number(usuarioId) : null,
         recurso,
@@ -54,7 +54,7 @@ export const registrarAcceso = async (req, res, next) => {
 export const bitacoraPorId = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
-    const log = await prisma.bitacoraAccesos.findUnique({
+    const log = await prisma.bitacoraaccesos.findUnique({
       where: { id }
     });
 

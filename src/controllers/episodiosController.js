@@ -2,15 +2,12 @@ import { prisma } from '../prisma.js';
 import { mapEntity } from '../utils/responseMapper.js';
 import parsePositiveInt from '../utils/ParsePositive.js';
 
-// --- EPISODIOS ---
 
 export const crearEpisodio = async (req, res, next) => {
   try {
     const data = req.body;
     
-    // Validación de negocio básica (si no usas Joi aún)
-    // El middleware validate(episodioSchema) ya se encarga de los tipos
-    
+
     const created = await prisma.episodiosatencion.create({ 
         data: {
             personaId: Number(data.personaId),
@@ -83,7 +80,7 @@ export const obtenerEpisodio = async (req, res, next) => {
     }
 };
 
-// --- NOTAS CLÍNICAS ---
+
 
 export const notasEnEpisodio = async (req, res, next) => {
   try {
@@ -132,7 +129,7 @@ export const crearNotaEnEpisodio = async (req, res, next) => {
   }
 };
 
-// --- DIAGNÓSTICOS ---
+
 export const diagnosticosEnEpisodio = async (req, res, next) => {
     try {
         const page = parsePositiveInt(req.query.page, 1);
@@ -161,7 +158,7 @@ export const crearDiagnosticoEnEpisodio = async (req, res, next) => {
             throw err;
         }
 
-        // Si es principal, desmarcar anteriores
+      
         if (data.principal) {
             await prisma.diagnosticos.updateMany({
                 where: { episodioId, principal: true },
@@ -185,7 +182,7 @@ export const crearDiagnosticoEnEpisodio = async (req, res, next) => {
     }
 };
 
-// --- CONSENTIMIENTOS ---
+
 
 export const consentimientosEnEpisodio = async (req, res, next) => {
     try {
