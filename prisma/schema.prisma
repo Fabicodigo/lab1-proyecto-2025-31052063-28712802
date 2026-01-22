@@ -75,19 +75,6 @@ model aseguradoras {
   planescobertura planescobertura[]
 }
 
-model bitacoraaccesos {
-  id        Int       @id @default(autoincrement())
-  usuarioId Int
-  recurso   String?   @db.VarChar(50)
-  accion    String?   @db.VarChar(50)
-  ip        String?   @db.VarChar(50)
-  userAgent String?   @db.VarChar(50)
-  fecha     DateTime? @db.DateTime(0)
-  usuarios  usuarios? @relation(fields: [usuarioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bitacoraaccesos_ibfk_1")
-
-  @@index([usuarioId], map: "usuarioId")
-}
-
 model citas {
   id    Int     @id @default(autoincrement())
   personaId         Int?

@@ -17,8 +17,6 @@ import prestaciones from './routes/prestacionesRoutes.js';
 import arancel from './routes/arancelRoutes.js';
 import facturas from './routes/facturasRoutes.js';
 import pagos from './routes/pagosRoutes.js';
-import mensajeria from './routes/mensajeriaRoutes.js';
-import bitacora from './routes/bitacoraAccesosRoutes.js';
 import profesionales from './routes/profesionalesRoutes.js';
 import unidades from './routes/unidadesRoutes.js';
 
@@ -43,8 +41,6 @@ app.use('/', prestaciones);
 app.use('/', arancel);
 app.use('/', facturas);
 app.use('/', pagos);
-app.use('/', mensajeria);
-app.use('/', bitacora);
 app.use('/', profesionales);
 app.use('/', unidades);
 
