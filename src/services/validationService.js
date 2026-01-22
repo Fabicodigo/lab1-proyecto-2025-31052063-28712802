@@ -23,8 +23,8 @@ export const existeOThrow = async (modelo, id, nombreEntidad) => {
 // Validaciones compuestas comunes
 export const validarRelacionesCita = async (personaId, profesionalId, unidadId) => {
     await Promise.all([
-        existeOThrow('personasatendidas', personaId, 'Paciente'),
+        existeOThrow('personasAtendidas', personaId, 'Paciente'),
         existeOThrow('profesionales', profesionalId, 'Profesional'),
-        existeOThrow('unidadesatencion', unidadId, 'Unidad de Atención')
+        existeOThrow('unidadesAtencion', unidadId, 'Unidad de Atención')
     ]);
 };

@@ -260,3 +260,16 @@ export const consentimientoSchema = Joi.object({
   documentoIdentidad: textoBasico.optional(), // Cédula de quien firma
   observaciones: textoLargo.optional()
 });
+
+export const notaUpdateSchema = Joi.object({
+  subjetivo: textoLargo.optional(),
+  objetivo: textoLargo.optional(),
+  analisis: textoLargo.optional(),
+  plan: textoLargo.optional()
+});
+
+export const resultadoUpdateSchema = Joi.object({
+  informe: textoLargo.optional(),
+  conclusiones: textoLargo.optional(),
+  resumen: textoLargo.optional()
+});

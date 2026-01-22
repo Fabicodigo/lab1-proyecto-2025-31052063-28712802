@@ -8,26 +8,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model afiliaciones {
-  id    Int     @id @default(autoincrement())
-  personaId         Int?
-  planId            Int?
-  aseguradoraId     Int?
-  numeroPoliza      String?            @db.VarChar(100)
-  vigenteDesde      DateTime?          @db.Date
-  vigenteHasta      DateTime?          @db.Date
-  copago            Decimal?           @db.Decimal(10, 2)
-  cuotaModeradora   Decimal?           @db.Decimal(10, 2)
-  personasatendidas personasatendidas? @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "afiliaciones_ibfk_1")
-  planescobertura   planescobertura?   @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "afiliaciones_ibfk_2")
-  aseguradoras      aseguradoras?      @relation(fields: [aseguradoraId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "afiliaciones_ibfk_3")
+model Afiliaciones {
+  id              Int               @id @default(autoincrement())
+  personaId       Int?
+  planId          Int?
+  aseguradoraId   Int?
+  numeroPoliza    String?           @db.VarChar(100)
+  vigenteDesde    DateTime?         @db.Date
+  vigenteHasta    DateTime?         @db.Date
+  copago          Decimal?          @db.Decimal(10, 2)
+  cuotaModeradora Decimal?          @db.Decimal(10, 2)
 
-  @@index([aseguradoraId], map: "aseguradoraId")
-  @@index([personaId], map: "personaId")
-  @@index([planId], map: "planId")
+  personasAtendidas PersonasAtendidas? @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  planesCobertura   PlanesCobertura?   @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  aseguradoras      Aseguradoras?      @relation(fields: [aseguradoraId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([aseguradoraId])
+  @@index([personaId])
+  @@index([planId])
+  @@map("afiliaciones")
 }
 
-model agenda {
+model Agenda {
   id               Int               @id @default(autoincrement())
   profesionalId    Int?
   unidadId         Int?
@@ -35,14 +37,16 @@ model agenda {
   fin              DateTime?         @db.DateTime(0)
   capacidad        Int?
   estado           String?           @db.VarChar(20)
-  profesionales    profesionales?    @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "agenda_ibfk_1")
-  unidadesatencion unidadesatencion? @relation(fields: [unidadId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "agenda_ibfk_2")
 
-  @@index([profesionalId], map: "profesionalId")
-  @@index([unidadId], map: "unidadId")
+  profesionales    Profesionales?    @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  unidadesAtencion UnidadesAtencion? @relation(fields: [unidadId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([profesionalId])
+  @@index([unidadId])
+  @@map("agenda")
 }
 
-model arancel {
+model Arancel {
   id              Int              @id @default(autoincrement())
   prestacionId    Int?
   planId          Int?
@@ -50,33 +54,58 @@ model arancel {
   impuestos       Decimal?         @db.Decimal(10, 2)
   vigenteDesde    DateTime?        @db.Date
   vigenteHasta    DateTime?        @db.Date
-  prestaciones    prestaciones?    @relation(fields: [prestacionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "arancel_ibfk_1")
-  planescobertura planescobertura? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "arancel_ibfk_2")
 
-  @@index([planId], map: "planId")
-  @@index([prestacionId], map: "prestacionId")
+  prestaciones    Prestaciones?    @relation(fields: [prestacionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  planesCobertura PlanesCobertura? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([planId])
+  @@index([prestacionId])
+  @@map("arancel")
 }
 
-model archivo {
+model Archivo {
   id         Int          @id @default(autoincrement())
   fecha      DateTime?    @db.DateTime(0)
   tipo       String?      @db.VarChar(50)
   requisitos String?      @db.Text
-  resultados resultados[]
+  
+  resultados Resultados[]
+  @@map("archivo")
 }
 
-model aseguradoras {
+model Aseguradoras {
   id              Int               @id @default(autoincrement())
   nombre          String?           @db.VarChar(500)
   contacto        String?           @db.VarChar(255)
   estado          String?           @db.VarChar(50)
-  afiliaciones    afiliaciones[]
-  facturas        facturas[]
-  planescobertura planescobertura[]
+
+  afiliaciones    Afiliaciones[]
+  facturas        Facturas[]
+  planesCobertura PlanesCobertura[]
+  @@map("aseguradoras")
 }
 
-model citas {
-  id    Int     @id @default(autoincrement())
+model Autorizaciones {
+  id                  Int              @id @default(autoincrement())
+  ordenId             Int?
+  planId              Int?
+  procedimientoCodigo String?          @db.VarChar(50)
+  estado              String?          @db.VarChar(50)
+  fechaSolicitud      DateTime?        @db.DateTime(0)
+  fechaRespuesta      DateTime?        @db.DateTime(0)
+  numeroAutorizacion  String?          @db.VarChar(50)
+  observaciones       String?          @db.Text
+
+  ordenes             Ordenes?         @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  planesCobertura     PlanesCobertura? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([ordenId])
+  @@index([planId])
+  @@map("autorizaciones")
+}
+
+model Citas {
+  id                Int                @id @default(autoincrement())
   personaId         Int?
   profesionalId     Int?
   unidadId          Int?
@@ -86,40 +115,46 @@ model citas {
   canal             String?            @db.VarChar(20)
   observaciones     String?            @db.Text
   estado            String?            @db.VarChar(20)
-  personasatendidas personasatendidas? @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "citas_ibfk_1")
-  profesionales     profesionales?     @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "citas_ibfk_2")
-  unidadesatencion  unidadesatencion?  @relation(fields: [unidadId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "citas_ibfk_3")
 
-  @@index([personaId], map: "personaId")
-  @@index([profesionalId], map: "profesionalId")
-  @@index([unidadId], map: "unidadId")
+  personasAtendidas PersonasAtendidas? @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profesionales     Profesionales?     @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  unidadesAtencion  UnidadesAtencion?  @relation(fields: [unidadId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([personaId])
+  @@index([profesionalId])
+  @@index([unidadId])
+  @@map("citas")
 }
 
-model consentimientos {
-  id    Int     @id @default(autoincrement())
+model Consentimientos {
+  id                Int                @id @default(autoincrement())
   personaId         Int?
   tipoProcedimiento String?            @db.VarChar(150)
   nombre            String?            @db.VarChar(150)
   fecha             DateTime?          @db.DateTime(0)
   archivoId         String?            @db.VarChar(100)
-  personasatendidas personasatendidas? @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "consentimientos_ibfk_1")
 
-  @@index([personaId], map: "personaId")
+  personasAtendidas PersonasAtendidas? @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([personaId])
+  @@map("consentimientos")
 }
 
-model diagnosticos {
-  id    Int     @id @default(autoincrement())
+model Diagnosticos {
+  id                Int                @id @default(autoincrement())
   episodioId        Int?
   codigo            String?            @db.VarChar(50)
   descripcion       String?            @db.VarChar(255)
   tipo              String?            @db.VarChar(50)
   principal         Boolean?
-  episodiosatencion episodiosatencion? @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "diagnosticos_ibfk_1")
 
-  @@index([episodioId], map: "episodioId")
+  episodiosAtencion EpisodiosAtencion? @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([episodioId])
+  @@map("diagnosticos")
 }
 
-model episodioprestacion {
+model EpisodioPrestacion {
   id                Int               @id @default(autoincrement())
   episodioId        Int
   prestacionId      Int
@@ -127,15 +162,17 @@ model episodioprestacion {
   fechaRealizacion  DateTime?         @db.DateTime(0)
   cantidad          Int?
   valorRegistrado   String?           @db.VarChar(50)
-  episodiosatencion episodiosatencion @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "episodioprestacion_ibfk_1")
-  prestaciones      prestaciones      @relation(fields: [prestacionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "episodioprestacion_ibfk_2")
-  profesionales     profesionales?    @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "episodioprestacion_ibfk_3")
 
-  @@index([prestacionId], map: "prestacionId")
-  @@index([profesionalId], map: "profesionalId")
+  episodiosAtencion EpisodiosAtencion @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prestaciones      Prestaciones      @relation(fields: [prestacionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profesionales     Profesionales?    @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([prestacionId])
+  @@index([profesionalId])
+  @@map("episodioprestacion")
 }
 
-model episodiosatencion {
+model EpisodiosAtencion {
   id                 Int                  @id @default(autoincrement())
   personaId          Int?
   unidadId           Int?
@@ -144,17 +181,19 @@ model episodiosatencion {
   motivo             String?              @db.Text
   tipo               String?              @db.VarChar(50)
   estado             String?              @db.VarChar(20)
-  diagnosticos       diagnosticos[]
-  episodioprestacion episodioprestacion[]
-  personasatendidas  personasatendidas?   @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "episodiosatencion_ibfk_1")
-  notasclinicas      notasclinicas[]
-  ordenes            ordenes[]
-  prescripciones     prescripciones[]
 
-  @@index([personaId], map: "personaId")
+  diagnosticos       Diagnosticos[]
+  episodioPrestacion EpisodioPrestacion[]
+  personasAtendidas  PersonasAtendidas?   @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  notasClinicas      NotasClinicas[]
+  ordenes            Ordenes[]
+  prescripciones     Prescripciones[]
+
+  @@index([personaId])
+  @@map("episodiosatencion")
 }
 
-model facturaitem {
+model FacturaItem {
   id            Int           @id @default(autoincrement())
   facturaId     Int?
   prestacionId  Int?
@@ -163,43 +202,48 @@ model facturaitem {
   valorUnitario Decimal?      @db.Decimal(10, 2)
   impuestos     Decimal?      @db.Decimal(10, 2)
   total         Decimal?      @db.Decimal(10, 2)
-  facturas      facturas?     @relation(fields: [facturaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "facturaitem_ibfk_1")
-  prestaciones  prestaciones? @relation(fields: [prestacionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "facturaitem_ibfk_2")
 
-  @@index([facturaId], map: "facturaId")
-  @@index([prestacionId], map: "prestacionId")
+  facturas      Facturas?     @relation(fields: [facturaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  prestaciones  Prestaciones? @relation(fields: [prestacionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([facturaId])
+  @@index([prestacionId])
+  @@map("facturaitem")
 }
 
-model facturas {
-  id    Int     @id @default(autoincrement())
+model Facturas {
+  id                Int                @id @default(autoincrement())
   personaId         Int?
   aseguradoraId     Int?
-  numero            String?            @unique(map: "numero") @db.VarChar(50)
+  numero            String?            @unique @db.VarChar(50)
   fechaEmision      DateTime?          @db.DateTime(0)
   subtotal          Decimal?           @db.Decimal(10, 2)
   impuestos         Decimal?           @db.Decimal(10, 2)
   total             Decimal?           @db.Decimal(10, 2)
   estado            String?            @db.VarChar(50)
   moneda            String?            @db.VarChar(10)
-  facturaitem       facturaitem[]
-  personasatendidas personasatendidas? @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "facturas_ibfk_1")
-  aseguradoras      aseguradoras?      @relation(fields: [aseguradoraId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "facturas_ibfk_2")
-  notificaciones    notificaciones[]
-  pagos             pagos[]
 
-  @@index([aseguradoraId], map: "aseguradoraId")
-  @@index([personaId], map: "personaId")
+  facturaItem       FacturaItem[]
+  personasAtendidas PersonasAtendidas? @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  aseguradoras      Aseguradoras?      @relation(fields: [aseguradoraId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pagos             Pagos[]
+
+  @@index([aseguradoraId])
+  @@index([personaId])
+  @@map("facturas")
 }
 
-model items {
+model Items {
   id                Int                 @id @default(autoincrement())
   nombre            String?             @db.VarChar(50)
   descripcion       String?             @db.VarChar(50)
-  itemsprescripcion itemsprescripcion[]
-  ordenitems        ordenitems[]
+
+  itemsPrescripcion ItemsPrescripcion[]
+  ordenItems        OrdenItems[]
+  @@map("items")
 }
 
-model itemsprescripcion {
+model ItemsPrescripcion {
   id             Int            @id @default(autoincrement())
   prescripcionId Int
   itemId         Int
@@ -207,14 +251,16 @@ model itemsprescripcion {
   via            String?        @db.VarChar(50)
   frecuencia     String?        @db.VarChar(50)
   duracion       String?        @db.VarChar(50)
-  prescripciones prescripciones @relation(fields: [prescripcionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "itemsprescripcion_ibfk_1")
-  items          items          @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "itemsprescripcion_ibfk_2")
 
-  @@index([itemId], map: "itemId")
+  prescripciones Prescripciones @relation(fields: [prescripcionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  items          Items          @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([itemId])
+  @@map("itemsprescripcion")
 }
 
-model notasclinicas {
-  id    Int     @id @default(autoincrement())
+model NotasClinicas {
+  id                Int                @id @default(autoincrement())
   episodioId        Int?
   profesionalId     Int?
   fecha             DateTime?          @db.DateTime(0)
@@ -222,14 +268,16 @@ model notasclinicas {
   objetivo          String?            @db.Text
   analisis          String?            @db.Text
   plan              String?            @db.Text
-  episodiosatencion episodiosatencion? @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notasclinicas_ibfk_1")
-  profesionales     profesionales?     @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notasclinicas_ibfk_2")
+  
+  episodiosAtencion EpisodiosAtencion? @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profesionales     Profesionales?     @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([episodioId], map: "episodioId")
-  @@index([profesionalId], map: "profesionalId")
+  @@index([episodioId])
+  @@index([profesionalId])
+  @@map("notasclinicas")
 }
 
-model notificaciones {
+model Notificaciones {
   id           Int       @id @default(autoincrement())
   usuarioId    Int?
   facturaId    Int?
@@ -244,6 +292,7 @@ model notificaciones {
 
   @@index([facturaId], map: "facturaId")
   @@index([usuarioId], map: "usuarioId")
+  @@map("notificaciones")
 }
 
 model ordenes {
@@ -252,26 +301,31 @@ model ordenes {
   tipo              String?            @db.VarChar(50)
   prioridad         String?            @db.VarChar(20)
   estado            String?            @db.VarChar(50)
-  episodiosatencion episodiosatencion? @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ordenes_ibfk_1")
-  ordenitems        ordenitems[]
-  resultados        resultados[]
 
-  @@index([episodioId], map: "episodioId")
+  episodiosAtencion EpisodiosAtencion? @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ordenItems        OrdenItems[]
+  resultados        Resultados[]
+  autorizaciones    Autorizaciones[]
+
+  @@index([episodioId])
+  @@map("ordenes")
 }
 
-model ordenitems {
-  id           Int            @id @default(autoincrement())
+model OrdenItems {
+  id           Int     @id @default(autoincrement())
   ordenId      Int
   itemId       Int
   descripcion  String? @db.VarChar(255)
   indicaciones String? @db.Text
-  ordenes      ordenes @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ordenitems_ibfk_1")
-  items        items   @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ordenitems_ibfk_2")
 
-  @@index([itemId], map: "itemId")
+  ordenes      Ordenes @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  items        Items   @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([itemId])
+  @@map("ordenitems")
 }
 
-model pagos {
+model Pagos {
   id         Int       @id @default(autoincrement())
   facturaId  Int?
   fecha      DateTime? @db.DateTime(0)
@@ -279,22 +333,25 @@ model pagos {
   medio      String?   @db.VarChar(50)
   referencia String?   @db.VarChar(50)
   estado     String?   @db.VarChar(20)
-  facturas   facturas? @relation(fields: [facturaId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pagos_ibfk_1")
 
-  @@index([facturaId], map: "facturaId")
+  facturas   Facturas? @relation(fields: [facturaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([facturaId])
+  @@map("pagos")
 }
 
-model permisos {
+model Permisos {
   id          Int          @id @default(autoincrement())
   clave       String?      @db.VarChar(50)
   descripcion String?      @db.Text
-  rolpermiso  rolpermiso[]
+  rolPermiso  RolPermiso[]
+  @@map("permisos")
 }
 
-model personasatendidas {
+model PersonasAtendidas {
   id                 Int                 @id @default(autoincrement())
   tipoDocumento      String?             @db.VarChar(50)
-  numeroDocumento    String?             @unique(map: "numeroDocumento") @db.VarChar(50)
+  numeroDocumento    String?             @unique @db.VarChar(50)
   nombres            String?             @db.VarChar(100)
   apellidos          String?             @db.VarChar(100)
   fechaNacimiento    DateTime?           @db.Date
@@ -305,49 +362,58 @@ model personasatendidas {
   direccion          String?             @db.VarChar(255)
   alergias           String?             @db.VarChar(255)
   estado             String?             @db.VarChar(20)
-  afiliaciones       afiliaciones[]
-  citas              citas[]
-  consentimientos    consentimientos[]
-  episodiosatencion  episodiosatencion[]
-  facturas           facturas[]
+
+  afiliaciones       Afiliaciones[]
+  citas              Citas[]
+  consentimientos    Consentimientos[]
+  episodiosAtencion  EpisodiosAtencion[]
+  facturas           Facturas[]
+  @@map("personasatendidas")
 }
 
-model planescobertura {
-  id                   Int            @id @default(autoincrement())
+model PlanesCobertura {
+  id                   Int              @id @default(autoincrement())
   aseguradoraId        Int?
-  nombre               String?        @db.VarChar(100)
-  condicionesGenerales String?        @db.Text
-  afiliaciones         afiliaciones[]
-  arancel              arancel[]
-  aseguradoras         aseguradoras?  @relation(fields: [aseguradoraId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "planescobertura_ibfk_1")
+  nombre               String?          @db.VarChar(100)
+  condicionesGenerales String?          @db.Text
 
-  @@index([aseguradoraId], map: "aseguradoraId")
+  afiliaciones         Afiliaciones[]
+  arancel              Arancel[]
+  autorizaciones       Autorizaciones[]
+  aseguradoras         Aseguradoras?    @relation(fields: [aseguradoraId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([aseguradoraId])
+  @@map("planescobertura")
 }
 
-model prescripciones {
+model Prescripciones {
   id                Int                 @id @default(autoincrement())
   episodioId        Int?
   observaciones     String?             @db.Text
-  itemsprescripcion itemsprescripcion[]
-  episodiosatencion episodiosatencion?  @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "prescripciones_ibfk_1")
 
-  @@index([episodioId], map: "episodioId")
+  itemsPrescripcion ItemsPrescripcion[]
+  episodiosAtencion EpisodiosAtencion?  @relation(fields: [episodioId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([episodioId])
+  @@map("prescripciones")
 }
 
-model prestaciones {
+model Prestaciones {
   id                 Int                  @id @default(autoincrement())
   nombre             String?              @db.VarChar(150)
   grupo              String?              @db.VarChar(50)
   requisitos         String?              @db.Text
   tiempoEstimado     Int?
-  arancel            arancel[]
-  episodioprestacion episodioprestacion[]
-  facturaitem        facturaitem[]
+
+  arancel            Arancel[]
+  episodioPrestacion EpisodioPrestacion[]
+  facturaItem        FacturaItem[]
+  @@map("prestaciones")
 }
 
-model profesionales {
+model Profesionales {
   id                  Int                  @id @default(autoincrement())
-  usuarioId           Int                  
+  usuarioId           Int
   nombres             String?              @db.VarChar(100)
   apellidos           String?              @db.VarChar(100)
   registroProfesional String?              @db.VarChar(255)
@@ -355,57 +421,64 @@ model profesionales {
   telefono            String?              @db.VarChar(50)
   especialidad        String?              @db.VarChar(100)
   estado              String?              @db.VarChar(20)
-  agenda              agenda[]
-  citas               citas[]
-  episodioprestacion  episodioprestacion[]
-  notasclinicas       notasclinicas[]
-  profesionalunidad   profesionalunidad[]
-  usuarios            usuarios          @relation(fields: [usuarioId], references: [id])
 
+  agenda              Agenda[]
+  citas               Citas[]
+  episodioPrestacion  EpisodioPrestacion[]
+  notasClinicas       NotasClinicas[]
+  profesionalUnidad   ProfesionalUnidad[]
+  usuarios            Usuarios             @relation(fields: [usuarioId], references: [id])
+  @@map("profesionales")
 }
 
-model profesionalunidad {
+model ProfesionalUnidad {
   Id                   Int              @id @default(autoincrement())
   unidadId             Int
   profesionalId        Int
   nombre               String?          @db.VarChar(50)
   condicionesGenerales String?          @db.Text
-  profesionales        profesionales    @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "profesionalunidad_ibfk_1")
-  unidadesatencion     unidadesatencion @relation(fields: [unidadId], references: [id])
+
+  profesionales        Profesionales    @relation(fields: [profesionalId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  unidadesAtencion     UnidadesAtencion @relation(fields: [unidadId], references: [id])
+  @@map("profesionalunidad")
 }
 
-model resultados {
+model Resultados {
   id        Int      @id @default(autoincrement())
   ordenId   Int?
   archivoId Int?
   resumen   String?  @db.Text
   fecha     DateTime @db.Date
-  ordenes   ordenes? @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "resultados_ibfk_1")
-  archivo   archivo? @relation(fields: [archivoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "resultados_ibfk_2")
 
-  @@index([archivoId], map: "archivoId")
-  @@index([ordenId], map: "ordenId")
+  ordenes   Ordenes? @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  archivo   Archivo? @relation(fields: [archivoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([archivoId])
+  @@index([ordenId])
+  @@map("resultados")
 }
 
-model roles {
+model Roles {
   id          Int          @id @default(autoincrement())
   nombre      String?      @db.VarChar(50)
   descripcion String?      @db.Text
-  rolpermiso  rolpermiso[]
-  usuariorol  usuariorol[]
+  rolPermiso  RolPermiso[]
+  usuarioRol  UsuarioRol[]
+  @@map("roles")
 }
 
-model rolpermiso {
+model RolPermiso {
   rolId     Int
   permisoId Int
-  roles     roles    @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rolpermiso_ibfk_1")
-  permisos  permisos @relation(fields: [permisoId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "rolpermiso_ibfk_2")
+  roles     Roles    @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  permisos  Permisos @relation(fields: [permisoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([rolId, permisoId])
-  @@index([permisoId], map: "permisoId")
+  @@index([permisoId])
+  @@map("rolpermiso")
 }
 
-model unidadesatencion {
+model UnidadesAtencion {
   id                Int                 @id @default(autoincrement())
   nombre            String?             @db.VarChar(100)
   tipo              String?             @db.VarChar(100)
@@ -413,30 +486,33 @@ model unidadesatencion {
   direccion         String?             @db.VarChar(255)
   telefono          String?             @db.VarChar(50)
   estado            String?             @db.VarChar(20)
-  agenda            agenda[]
-  citas             citas[]
-  profesionalunidad profesionalunidad[]
+
+  agenda            Agenda[]
+  citas             Citas[]
+  profesionalUnidad ProfesionalUnidad[]
+  @@map("unidadesatencion")
 }
 
-model usuariorol {
+model UsuarioRol {
   usuarioId Int
   rolId     Int
-  usuarios  usuarios @relation(fields: [usuarioId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuariorol_ibfk_1")
-  roles     roles    @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "usuariorol_ibfk_2")
+  usuarios  Usuarios @relation(fields: [usuarioId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  roles     Roles    @relation(fields: [rolId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([usuarioId, rolId])
-  @@index([rolId], map: "rolId")
+  @@index([rolId])
+  @@map("usuariorol")
 }
 
-model usuarios {
-  id              Int               @id @default(autoincrement())
-  username        String?           @unique(map: "username") @db.VarChar(50)
-  email           String?           @db.VarChar(150)
-  passwordHash    String?           @db.VarChar(255)
-  estado          String?           @db.VarChar(20)
-  fechaCreacion   DateTime?         @db.DateTime(0)
-  bitacoraaccesos bitacoraaccesos[]
-  notificaciones  notificaciones[]
-  profesionales   profesionales[]
-  usuariorol      usuariorol[]
+model Usuarios {
+  id                  Int                   @id @default(autoincrement())
+  username            String?               @unique @db.VarChar(50)
+  email               String?               @db.VarChar(150)
+  passwordHash        String?               @db.VarChar(255)
+  estado              String?               @db.VarChar(20)
+  fechaCreacion       DateTime?             @db.DateTime(0)
+
+  profesionales       Profesionales[]
+  usuarioRol          UsuarioRol[]
+  @@map("usuarios")
 }

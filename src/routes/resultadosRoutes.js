@@ -10,7 +10,6 @@ router.post('/resultados', validate(resultadoSchema), resultadosController.crear
 
 router.get('/resultados/:id', resultadosController.ResultadoPorId);
 router.delete('/resultados/:id', resultadosController.eliminarResultado); 
-
-router.get('/resultados/:id/historial', resultadosController.obtenerHistorialResultado);
+router.put('/resultados/:id', validate(resultadoUpdateSchema), resultadosController.actualizarResultado);
 
 export default router;

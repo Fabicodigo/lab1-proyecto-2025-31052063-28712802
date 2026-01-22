@@ -129,6 +129,27 @@ export const crearNotaEnEpisodio = async (req, res, next) => {
   }
 };
 
+export const actualizarNota = async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const { subjetivo, objetivo, analisis, plan } = req.body;
+
+    const notaActualizada = await prisma.notasClinicas.update({
+        where: { id },
+        data: {
+            subjetivo,
+            objetivo,
+            analisis,
+            plan
+        }
+    });
+
+    res.json(mapEntity(notaActualizada));
+  } catch (error) {
+    console.error('Error actualizando nota:', error);
+    next(error);
+  }
+};
 
 export const diagnosticosEnEpisodio = async (req, res, next) => {
     try {

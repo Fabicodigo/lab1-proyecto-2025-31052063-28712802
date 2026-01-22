@@ -90,22 +90,13 @@ export const ResultadoPorId = async (req, res, next) => {
 
 export const actualizarResultado = async (req, res, next) => {
   const id = Number(req.params.id);
-  const { informe, conclusiones, usuarioId, motivo } = req.body; // Extraemos usuario y motivo
+  const { resumen, fecha } = req.body;
 
   try {
     const actualizar = {};
     
-    // Mapeo de campos normales
-    if (informe !== undefined) actualizar.informe = informe;
-    if (conclusiones !== undefined) actualizar.conclusiones = conclusiones;
-    
-    // 👇 INYECCIÓN PARA EL MIDDLEWARE (prisma.js)
-    // Esto es lo que dispara la creación automática del historial
-    actualizar._usuarioId = usuarioId;
-    actualizar._motivo = motivo;
-
-    // Eliminamos lógica manual de versiones (prisma.js lo hace solo)
-    // if (data.version !== undefined) ... <-- ELIMINADO
+    if (resumen !== undefined) actualizar.resumen = resumen;
+    if (fecha) actualizar.fecha = new Date(fecha);
 
     const actualizado = await prisma.resultados.update({ 
         where: { id }, 
