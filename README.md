@@ -50,7 +50,7 @@ Instalación y Configuración
 ~~~
 git clone https://github.com/Fabicodigo/lab1-proyecto-2025-31052063-28712802
 cd lab1-proyecto-2025-31052063-28712802
-npm ci
+npm install
 ~~~
 
 3. Configuración de Variables de Entorno
@@ -62,11 +62,10 @@ PORT=4000
 
 # Conexión a Base de Datos MySQL (Prisma)
 # Formato: mysql://USUARIO:PASSWORD@HOST:PUERTO/NOMBRE_DB
-DATABASE_URL="mysql://user:password@localhost:3306/lab1_proyecto"
 
-# Configuración de SendGrid
-SENDGRID_API_KEY="tu_api_key_aqui"
-SENDGRID_FROM_EMAIL="no-reply@tuapp.com"
+DATABASE_URL="mysql://user:password@localhost:3306/lab1_proyecto"
+PORT=4000
+NODE_ENV=Development
 ~~~
 
 4. Base de Datos (Migraciones y Seed)
