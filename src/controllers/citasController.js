@@ -1,7 +1,7 @@
 import { prisma } from '../prisma.js';
 import { mapEntity } from '../utils/responseMapper.js';
 import parsePositiveInt from '../utils/ParsePositive.js';
-import * as citasService from '../services/citasService.js';
+import { validarDisponibilidad } from '../services/citasService.js'; // Importamos el servicio
 
 const citaInclude = {
     profesionales: { select: { nombres: true, apellidos: true } },
@@ -21,9 +21,7 @@ export const listarCitas = async (req, res, next) => {
         include: citaInclude 
     });
     
-    const data = rawData.map(p => mapEntity(p, {
-      dateFields: ['inicio', 'fin'], 
-    }));
+    const data = rawData.map(p => mapEntity(p));
 
     res.json({ page, pageSize, data });
   } catch (error) {
@@ -34,8 +32,28 @@ export const listarCitas = async (req, res, next) => {
 
 export const crearCita = async (req, res, next) => {
   try {
-    const created = await citasService.agendarCita(req.body);
-    res.status(201).json(created);
+    const { personaId, profesionalId, unidadId, inicio, fin, motivo, canal, observaciones } = req.body;
+
+    const persona = await prisma.personasAtendidas.findUnique({ where: { id: personaId } });
+    if (!persona) throw new Error("Paciente no encontrado"); // AppError lo maneja mejor si lo importas
+
+    await validarDisponibilidad(profesionalId, unidadId, inicio, fin);
+
+    const nuevaCita = await prisma.citas.create({
+      data: {
+        personaId,
+        profesionalId,
+        unidadId,
+        inicio: new Date(inicio),
+        fin: new Date(fin),
+        motivo,
+        canal,
+        observaciones,
+        estado: 'Solicitada'
+      }
+    });
+
+    res.status(201).json(mapEntity(nuevaCita));
   } catch (error) {
     next(error);
   }

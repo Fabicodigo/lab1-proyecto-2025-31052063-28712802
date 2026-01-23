@@ -114,11 +114,12 @@ export const citaSchema = Joi.object({
   personaId: idSchema,
   profesionalId: idSchema,
   unidadId: idSchema,
-  inicio: fecha.required(),
-  fin: fecha.greater(Joi.ref('inicio')).required(),
-  motivo: textoLargo,
+  inicio: Joi.date().iso().required(),
+  fin: Joi.date().iso().greater(Joi.ref('inicio')).required()
+    .messages({ 'date.greater': 'La fecha de fin debe ser posterior a la de inicio' }),
+  motivo: textoBasico.required(),
   canal: Joi.string().valid('Presencial', 'Virtual').default('Presencial'),
-  observaciones: textoLargo
+  observaciones: textoLargo.optional()
 });
 
 // ==========================================

@@ -96,7 +96,7 @@ model Autorizaciones {
   numeroAutorizacion  String?          @db.VarChar(50)
   observaciones       String?          @db.Text
 
-  ordenes             Ordenes?         @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ordenes             ordenes?         @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   planesCobertura     PlanesCobertura? @relation(fields: [planId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([ordenId])
@@ -186,7 +186,7 @@ model EpisodiosAtencion {
   episodioPrestacion EpisodioPrestacion[]
   personasAtendidas  PersonasAtendidas?   @relation(fields: [personaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   notasClinicas      NotasClinicas[]
-  ordenes            Ordenes[]
+  ordenes            ordenes[]
   prescripciones     Prescripciones[]
 
   @@index([personaId])
@@ -300,7 +300,7 @@ model OrdenItems {
   descripcion  String? @db.VarChar(255)
   indicaciones String? @db.Text
 
-  ordenes      Ordenes @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ordenes      ordenes @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   items        Items   @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([itemId])
@@ -432,7 +432,7 @@ model Resultados {
   resumen   String?  @db.Text
   fecha     DateTime @db.Date
 
-  ordenes   Ordenes? @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ordenes   ordenes? @relation(fields: [ordenId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   archivo   Archivo? @relation(fields: [archivoId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([archivoId])

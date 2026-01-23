@@ -20,10 +20,8 @@ export const listarAgenda = async (req, res, next) => {
         orderBy: { inicio: 'asc' }, 
         include: agendaInclude 
     });
-    
-    const data = rawData.map(p => mapEntity(p, {
-      dateFields: ['inicio', 'fin'], 
-    }));
+
+    const data = rawData.map(p => mapEntity(p));
 
     res.json({ page, pageSize, data });
   } catch (error) {
